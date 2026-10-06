@@ -1,0 +1,16 @@
+project:
+  name: microfactory-lr
+  task: place the object in the fixture
+simulation:
+  max_steps: 180
+  max_motion_per_step: 0.055
+  grasp_radius: 0.055
+  goal_radius: 0.065
+  control_noise_std: 0.0
+safety:
+  max_delta_norm: 0.055
+  workspace_min: 0.02
+  workspace_max: 0.98
+evaluation:
+  episodes: 25
+  minimum_success_rate: 0.95
