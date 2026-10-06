@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lerobot-microfactory"
+version = "0.1.0"
+description = "Simulation-first robot learning cell with LeRobot integration boundaries"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26", "PyYAML>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+lerobot = ["lerobot>=0.6.1,<0.7"]
+
+[project.scripts]
+microfactory = "microfactory.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
