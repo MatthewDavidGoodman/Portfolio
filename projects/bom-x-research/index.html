@@ -1,0 +1,1495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BOM-X — AI / Semiconductor Research Engine</title>
+<meta name="description" content="BOM-X translates AI software demand into compute, semiconductor BOM demand, supplier earnings and expectations gaps." />
+<style>
+:root{
+  --bg:#05070b;--bg2:#080d14;--panel:#0b1119;--panel2:#0f1722;--panel3:#131d29;
+  --text:#f3f6f8;--muted:#93a2b2;--muted2:#667688;--line:rgba(147,170,192,.14);
+  --cyan:#5be7ff;--cyan2:#1aa5c8;--mint:#7ef2bd;--amber:#f5c46b;--rose:#ff8098;--violet:#9f8cff;
+  --glow:0 24px 80px rgba(0,0,0,.48);--radius:22px;--radius-sm:14px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;color:var(--text);font-family:Inter,"SF Pro Display","Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.55;background:
+  radial-gradient(1100px 700px at 76% -8%,rgba(91,231,255,.11),transparent 58%),
+  radial-gradient(900px 650px at 18% 2%,rgba(159,140,255,.08),transparent 56%),
+  linear-gradient(180deg,#05070b 0%,#070b11 46%,#04060a 100%);min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background-image:
+  linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.85),transparent 78%)}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:20;box-shadow:inset 0 0 160px rgba(0,0,0,.55)}
+a{color:#8feaff;text-decoration:none}a:hover{color:white}
+.app{display:grid;grid-template-columns:292px minmax(0,1fr);min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;padding:26px 18px 22px;border-right:1px solid rgba(150,180,205,.12);background:linear-gradient(180deg,rgba(8,12,18,.96),rgba(5,8,12,.92));backdrop-filter:blur(24px);z-index:10;overflow:hidden}
+.sidebar:before{content:"";position:absolute;top:-180px;left:-130px;width:380px;height:380px;background:radial-gradient(circle,rgba(91,231,255,.12),transparent 67%);pointer-events:none}
+.brandwrap{position:relative;display:flex;align-items:center;gap:12px;padding:6px 8px 22px;border-bottom:1px solid var(--line)}
+.brand-orb{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(91,231,255,.24),rgba(159,140,255,.18));border:1px solid rgba(113,224,255,.32);box-shadow:0 0 34px rgba(91,231,255,.12),inset 0 0 18px rgba(255,255,255,.04);font-family:var(--mono);font-size:14px;font-weight:900;color:#dffaff}
+.brand{font-weight:900;letter-spacing:.075em;font-size:20px}.brand span{color:var(--cyan)}
+.tag{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.15em}
+.nav{display:grid;gap:7px;margin-top:24px;position:relative}.nav:before{content:"RESEARCH MODULES";font-size:9px;letter-spacing:.18em;color:#526273;padding:0 10px 7px;font-weight:800}
+.nav button{appearance:none;border:1px solid transparent;background:transparent;cursor:pointer;padding:11px 12px;border-radius:13px;color:#98a8b7;font-size:13px;text-align:left;display:flex;align-items:center;gap:10px;transition:.22s ease;font-weight:650;letter-spacing:.005em}
+.nav button .nav-icon{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:#718394;border:1px solid rgba(125,150,170,.12);background:rgba(255,255,255,.02);transition:.22s ease}
+.nav button:hover{background:rgba(255,255,255,.035);color:#dce8f0;border-color:rgba(135,171,196,.11);transform:translateX(2px)}
+.nav button.active{background:linear-gradient(90deg,rgba(91,231,255,.11),rgba(91,231,255,.025));color:white;border-color:rgba(91,231,255,.18);box-shadow:inset 2px 0 0 var(--cyan)}
+.nav button.active .nav-icon{color:#dffbff;border-color:rgba(91,231,255,.28);background:rgba(91,231,255,.1);box-shadow:0 0 18px rgba(91,231,255,.08)}
+.sidebar .status{position:absolute;bottom:22px;left:18px;right:18px;border:1px solid rgba(125,159,182,.14);border-radius:16px;padding:14px;background:linear-gradient(180deg,rgba(15,24,34,.82),rgba(8,14,21,.78));box-shadow:inset 0 1px 0 rgba(255,255,255,.025);font-size:11px;color:var(--muted)}
+.status-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;color:#dce8ee;font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 14px rgba(126,242,189,.7);margin-right:7px}
+main{padding:0 42px 84px;max-width:1620px;width:100%;margin:0 auto;min-width:0}.tab{display:none;animation:fadeUp .32s ease}.tab.active{display:block}@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.topbar{height:70px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);margin-bottom:34px;position:sticky;top:0;z-index:7;background:linear-gradient(180deg,rgba(5,7,11,.94),rgba(5,7,11,.78));backdrop-filter:blur(22px)}
+.topbar-left,.topbar-right{display:flex;align-items:center;gap:9px}.crumb{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#788a9b;text-transform:uppercase}.live-pill{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;border:1px solid rgba(126,242,189,.2);background:rgba(126,242,189,.055);color:#a8f4cf;font-size:10px;font-weight:800;letter-spacing:.09em}.top-chip{font-size:9px;text-transform:uppercase;letter-spacing:.11em;color:#718293;border:1px solid var(--line);padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.018)}
+.hero-shell{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(330px,.78fr);gap:30px;align-items:stretch;margin:8px 0 22px}.hero-copy{padding:24px 0 12px}.eyebrow{text-transform:uppercase;letter-spacing:.17em;color:#8deeff;font-size:10px;font-weight:900;display:flex;align-items:center;gap:10px}.eyebrow:before{content:"";display:block;width:30px;height:1px;background:linear-gradient(90deg,var(--cyan),transparent)}
+h1{font-size:clamp(42px,5.1vw,76px);line-height:.98;margin:15px 0 18px;letter-spacing:-.055em;max-width:1000px;font-weight:860;background:linear-gradient(180deg,#ffffff 12%,#d8e2ea 84%);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:clamp(28px,3vw,39px);line-height:1.08;margin:0 0 13px;letter-spacing:-.038em;font-weight:800}h3{margin:0 0 11px;font-size:16px;letter-spacing:-.012em;color:#edf3f7}.lede{font-size:17px;color:#a9b7c4;max-width:920px;line-height:1.7}
+.hero-visual{position:relative;min-height:360px;border:1px solid rgba(126,169,198,.16);border-radius:28px;background:radial-gradient(circle at 50% 46%,rgba(91,231,255,.1),transparent 36%),linear-gradient(160deg,rgba(16,25,36,.94),rgba(7,12,18,.9));overflow:hidden;box-shadow:var(--glow),inset 0 1px 0 rgba(255,255,255,.03)}
+.hero-visual:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(91,231,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(91,231,255,.035) 1px,transparent 1px);background-size:28px 28px;mask-image:radial-gradient(circle,black,transparent 78%)}
+.orbit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid rgba(91,231,255,.13);border-radius:50%}.orbit.o1{width:238px;height:238px}.orbit.o2{width:316px;height:316px;border-color:rgba(159,140,255,.1)}.orbit.o3{width:160px;height:160px;border-color:rgba(126,242,189,.12)}
+.core-orb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:92px;height:92px;border-radius:26px;display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:11px;font-weight:900;letter-spacing:.05em;color:#e6fbff;background:linear-gradient(145deg,rgba(91,231,255,.18),rgba(159,140,255,.13));border:1px solid rgba(91,231,255,.28);box-shadow:0 0 60px rgba(91,231,255,.12),inset 0 0 22px rgba(255,255,255,.035)}
+.satellite{position:absolute;padding:7px 10px;border:1px solid rgba(130,165,189,.15);background:rgba(8,15,22,.8);backdrop-filter:blur(8px);border-radius:10px;font-family:var(--mono);font-size:9px;letter-spacing:.07em;color:#9cb2c2;box-shadow:0 10px 30px rgba(0,0,0,.28)}.satellite b{color:#e7f6fb}.sat-a{top:16%;left:10%}.sat-b{top:23%;right:8%}.sat-c{bottom:18%;left:8%}.sat-d{bottom:13%;right:10%}.sat-e{top:48%;right:3%}.hero-caption{position:absolute;left:18px;right:18px;bottom:16px;display:flex;justify-content:space-between;gap:12px;font-size:9px;font-family:var(--mono);letter-spacing:.08em;color:#65788a;text-transform:uppercase}
+.signal-ribbon{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 22px}.signal-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(130,161,183,.13);border-radius:999px;background:rgba(255,255,255,.02);font-size:10px;color:#8fa2b3;letter-spacing:.03em}.signal-chip b{color:#d9e9ef;font-weight:750}.signal-chip i{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px rgba(91,231,255,.45)}
+.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.section{margin-top:24px}
+.card{position:relative;background:linear-gradient(160deg,rgba(15,23,33,.92),rgba(8,13,20,.9));border:1px solid rgba(130,163,187,.14);border-radius:var(--radius);padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.025);overflow:hidden;transition:border-color .22s ease,transform .22s ease,box-shadow .22s ease}.card:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.018),transparent 32%)}.card:hover{border-color:rgba(91,231,255,.22);box-shadow:0 24px 70px rgba(0,0,0,.32),0 0 36px rgba(91,231,255,.025)}.card.soft{box-shadow:none;background:rgba(11,18,26,.66)}
+.kpi{min-height:148px;padding:19px 20px 17px}.kpi:before{content:"";position:absolute;width:110px;height:110px;right:-36px;top:-38px;border-radius:50%;background:radial-gradient(circle,rgba(91,231,255,.11),transparent 65%)}.kpi .n{font-size:34px;font-weight:860;letter-spacing:-.045em;margin-top:13px;color:#f7fbfd}.kpi .l{font-size:9px;color:#788b9d;text-transform:uppercase;letter-spacing:.15em;font-weight:800}.kpi .s{font-size:11px;color:#93a4b3;margin-top:5px}.kpi .spark{position:absolute;left:18px;right:18px;bottom:0;height:28px;opacity:.45;background:linear-gradient(90deg,transparent,rgba(91,231,255,.17),rgba(159,140,255,.08),transparent);clip-path:polygon(0 80%,12% 63%,25% 68%,36% 32%,48% 48%,62% 25%,74% 46%,86% 18%,100% 34%,100% 100%,0 100%)}
+.pipeline{display:flex;gap:8px;align-items:stretch;overflow:auto;padding:14px 2px 10px}.node{position:relative;min-width:138px;flex:1;border:1px solid rgba(120,159,185,.14);background:linear-gradient(160deg,rgba(16,26,37,.9),rgba(7,14,21,.92));border-radius:15px;padding:15px 14px}.node:before{content:"";position:absolute;top:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,rgba(91,231,255,.5),transparent)}.node strong{display:block;color:#eef9fc;font-size:12px;letter-spacing:.015em}.node small{display:block;color:#718597;font-size:10px;margin-top:4px}.arrow{align-self:center;color:#456272;font-size:17px;font-family:var(--mono)}
+.callout{border:1px solid rgba(245,196,107,.15);padding:13px 14px;background:linear-gradient(90deg,rgba(245,196,107,.07),rgba(245,196,107,.02));border-radius:13px;color:#c9d5dd;font-size:12px;box-shadow:inset 2px 0 0 rgba(245,196,107,.65)}
+.formula{font-family:var(--mono);background:rgba(4,10,15,.72);border:1px solid rgba(93,136,165,.16);color:#b9e8f3;padding:13px 14px;border-radius:13px;font-size:11px;line-height:1.65;overflow:auto;box-shadow:inset 0 0 24px rgba(0,0,0,.22)}
+label{display:block;font-size:9px;color:#7e92a3;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.105em;font-weight:800}input,select{width:100%;padding:11px 12px;border-radius:11px;border:1px solid rgba(128,159,181,.16);background:rgba(5,11,17,.82);color:#edf6fa;outline:none;font-family:inherit;transition:.2s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.015)}input:hover,select:hover{border-color:rgba(128,171,198,.28)}input:focus,select:focus{border-color:rgba(91,231,255,.48);box-shadow:0 0 0 3px rgba(91,231,255,.07)}input[type=checkbox]{accent-color:#56d8f5}.inline{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.out{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{padding:13px;border-radius:13px;background:linear-gradient(155deg,rgba(6,14,21,.88),rgba(12,20,29,.75));border:1px solid rgba(115,151,177,.13);min-height:76px}.metric b{font-size:21px;display:block;letter-spacing:-.025em;color:#eff8fb}.metric span{font-size:9px;color:#718596;text-transform:uppercase;letter-spacing:.08em}
+.badge{display:inline-flex;align-items:center;border:1px solid rgba(116,154,180,.19);border-radius:999px;padding:5px 9px;font-size:9px;text-transform:uppercase;letter-spacing:.09em;font-weight:800;color:#92a9b9;background:rgba(255,255,255,.02)}.badge.live{border-color:rgba(126,242,189,.21);color:#9bf0c7;background:rgba(126,242,189,.055)}.badge.pending{border-color:rgba(245,196,107,.21);color:#e7c77f;background:rgba(245,196,107,.055)}.badge.risk{border-color:rgba(255,128,152,.2);color:#f1a0af;background:rgba(255,128,152,.055)}
+.toolbar{display:flex;gap:10px;margin:13px 0;flex-wrap:wrap}.toolbar input,.toolbar select{width:auto;min-width:210px}.tablewrap{overflow:auto;border:1px solid rgba(128,160,183,.14);border-radius:17px;background:rgba(6,11,17,.55);box-shadow:0 20px 55px rgba(0,0,0,.17)}table{width:100%;border-collapse:collapse;min-width:960px;font-size:12px}th{text-align:left;color:#74899c;background:rgba(9,16,23,.95);position:sticky;top:0;text-transform:uppercase;letter-spacing:.09em;font-size:8px}th,td{padding:12px 13px;border-bottom:1px solid rgba(118,151,174,.1);vertical-align:top}tbody tr{transition:.16s ease}tr:hover td{background:rgba(91,231,255,.028)}td.qty{white-space:nowrap;font-weight:750;color:#d6e7ee}
+.timeline{display:grid;gap:9px}.eventline{display:grid;grid-template-columns:94px 1fr;gap:13px;padding:11px 0;border-bottom:1px solid rgba(120,151,174,.1)}.eventline .date{color:var(--cyan);font-family:var(--mono);font-size:10px}.eventline .headline{font-weight:650}.eventline .sub{font-size:11px;color:var(--muted)}
+.statusrow{display:grid;grid-template-columns:1fr auto;gap:10px;padding:11px 0;border-bottom:1px solid rgba(118,151,174,.1);font-size:12px}.check{color:var(--mint);font-weight:850}.wait{color:var(--amber);font-weight:850}.cut{color:#a0aab5;font-weight:850}
+.btn{border:1px solid rgba(91,231,255,.28);background:linear-gradient(135deg,rgba(91,231,255,.15),rgba(91,231,255,.06));color:#effdff;padding:10px 14px;border-radius:11px;cursor:pointer;font-weight:800;font-size:11px;letter-spacing:.025em;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 10px 28px rgba(0,0,0,.22);transition:.2s ease}.btn:hover{border-color:rgba(91,231,255,.52);transform:translateY(-1px);box-shadow:0 14px 30px rgba(0,0,0,.3),0 0 20px rgba(91,231,255,.06)}.small{font-size:11px;color:#75899a;line-height:1.6}.regime{font-size:30px;font-weight:900;letter-spacing:-.04em}.neg{color:var(--mint)}.fund{color:var(--amber)}.macro{color:var(--rose)}.nosig{color:#91a3b2}.bar{height:7px;border-radius:999px;background:#14202b;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--mint));border-radius:999px;box-shadow:0 0 16px rgba(91,231,255,.32)}
+pre.docs{white-space:pre-wrap;word-break:break-word;max-height:690px;overflow:auto;background:rgba(3,8,12,.82);border:1px solid rgba(112,151,178,.14);border-radius:15px;padding:18px;color:#a8bbc9;font-family:var(--mono);font-size:10.5px;line-height:1.62}details{border:1px solid rgba(120,154,179,.13);border-radius:16px;background:rgba(9,16,23,.64);margin:10px 0;overflow:hidden}summary{cursor:pointer;padding:14px 16px;font-weight:760;font-size:12px;color:#dce8ee}details>div{padding:0 16px 16px}
+.risk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.risk-card{padding:15px;border-radius:15px;border:1px solid rgba(124,157,180,.13);background:rgba(7,13,20,.62)}.risk-card .num{font-family:var(--mono);font-size:9px;color:#5be7ff;margin-bottom:8px}.risk-card b{display:block;font-size:12px;color:#e7f2f7;margin-bottom:5px}.risk-card p{margin:0;font-size:10px;color:#788c9d;line-height:1.55}
+.sens-list{display:grid;gap:9px;margin-top:14px}.sens-row{display:grid;grid-template-columns:145px 1fr 46px;gap:10px;align-items:center;font-size:10px}.sens-row .name{color:#a7b8c4}.sens-row .pct{font-family:var(--mono);color:#8fe9fa;text-align:right}.sens-track{height:7px;border-radius:999px;background:#121f2a;overflow:hidden}.sens-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#55dff8,#8c87ff);box-shadow:0 0 14px rgba(91,231,255,.13)}
+.graph-mini{position:relative;min-height:232px;border:1px solid rgba(124,158,182,.12);border-radius:16px;background:radial-gradient(circle at 50% 50%,rgba(91,231,255,.05),transparent 55%),rgba(5,11,17,.54);overflow:hidden}.graph-edge{position:absolute;height:1px;background:linear-gradient(90deg,rgba(91,231,255,.06),rgba(91,231,255,.28),rgba(91,231,255,.06));transform-origin:left center}.graph-node{position:absolute;min-width:104px;padding:9px 11px;border-radius:11px;background:rgba(11,20,29,.92);border:1px solid rgba(120,161,186,.16);box-shadow:0 12px 30px rgba(0,0,0,.28);font-size:9px;color:#8298a8}.graph-node b{display:block;color:#e4f1f6;font-size:10px;margin-bottom:2px}.gn1{left:6%;top:42%}.gn2{left:35%;top:15%}.gn3{left:36%;bottom:15%}.gn4{right:5%;top:42%}
+.prereg{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:15px;border:1px solid rgba(159,140,255,.15);background:linear-gradient(90deg,rgba(159,140,255,.055),rgba(91,231,255,.025));border-radius:15px}.prereg strong{font-size:12px}.prereg p{margin:3px 0 0;font-size:10px;color:#7e91a2}.lock{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;border:1px solid rgba(159,140,255,.24);color:#c6baff;background:rgba(159,140,255,.07);font-family:var(--mono);font-size:13px}
+footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--line);font-size:10px;color:#647789;letter-spacing:.02em}
+@media(max-width:1250px){.hero-shell{grid-template-columns:1fr}.hero-visual{min-height:300px}.risk-grid{grid-template-columns:1fr 1fr}.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1020px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--line);padding:16px}.brandwrap{padding-bottom:14px}.nav{display:flex;overflow:auto;margin-top:14px}.nav:before{display:none}.nav button{white-space:nowrap}.sidebar .status{display:none}main{padding:0 18px 60px}.topbar{height:58px;margin-bottom:24px}.g3,.g2{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.g4,.g3,.g2,.inline,.out,.risk-grid{grid-template-columns:1fr}.hero-shell{gap:14px}.hero-visual{min-height:280px}.topbar-right{display:none}h1{font-size:42px}.sens-row{grid-template-columns:110px 1fr 42px}.card{border-radius:18px;padding:17px}}
+
+/* v0.3 interactive research controls */
+.action-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.action-btn,.preset-btn{appearance:none;border:1px solid rgba(91,231,255,.2);background:rgba(91,231,255,.045);color:#bfeff6;border-radius:12px;padding:10px 13px;font-weight:800;font-size:11px;letter-spacing:.04em;cursor:pointer;transition:.2s ease}.action-btn:hover,.preset-btn:hover{transform:translateY(-1px);border-color:rgba(91,231,255,.45);background:rgba(91,231,255,.09)}.action-btn.primary{background:linear-gradient(135deg,rgba(91,231,255,.19),rgba(126,242,189,.1));color:white;border-color:rgba(91,231,255,.4)}
+.presetbar{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 4px}.preset-btn.active{background:rgba(126,242,189,.1);border-color:rgba(126,242,189,.38);color:#bdf8db;box-shadow:inset 0 0 0 1px rgba(126,242,189,.06)}
+.chain-node{cursor:pointer;position:relative}.chain-node:after{content:"";position:absolute;left:12px;right:12px;bottom:8px;height:1px;background:linear-gradient(90deg,transparent,rgba(91,231,255,.55),transparent);opacity:0;transition:.2s}.chain-node:hover:after,.chain-node.active:after{opacity:1}.chain-node.active{border-color:rgba(91,231,255,.42)!important;background:linear-gradient(180deg,rgba(91,231,255,.08),rgba(255,255,255,.02))!important}
+.chain-inspector{margin-top:14px;border:1px solid rgba(91,231,255,.14);background:rgba(6,13,20,.72);border-radius:16px;padding:14px 16px;display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:start}.chain-inspector .ci-title{font-family:var(--mono);font-weight:900;color:#bdf6ff;letter-spacing:.08em;font-size:11px}.chain-inspector p{margin:0;color:#aebdca;font-size:12px}
+.viz-panel{border:1px solid rgba(125,159,182,.14);border-radius:18px;background:linear-gradient(180deg,rgba(7,14,22,.86),rgba(6,10,16,.72));padding:16px;overflow:hidden}.viz-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:13px}.viz-title{font-size:13px;font-weight:850}.viz-sub{font-size:10px;color:var(--muted);margin-top:2px}.diag-pill{font-family:var(--mono);font-size:10px;padding:6px 8px;border-radius:999px;border:1px solid var(--line);color:#aab8c5}.diag-pill.warn{color:#ffd58b;border-color:rgba(245,196,107,.27);background:rgba(245,196,107,.06)}.diag-pill.ok{color:#aef4d2;border-color:rgba(126,242,189,.25);background:rgba(126,242,189,.06)}
+.compare-chart{display:grid;gap:12px}.compare-row{display:grid;grid-template-columns:125px 1fr 95px;gap:10px;align-items:center}.compare-label{font-size:10px;color:#8fa1b2;text-transform:uppercase;letter-spacing:.08em}.compare-track{height:14px;background:rgba(255,255,255,.035);border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.035)}.compare-fill{height:100%;border-radius:999px;transition:width .45s cubic-bezier(.2,.8,.2,1);background:linear-gradient(90deg,#36aac6,#6ce3f4)}.compare-fill.work{background:linear-gradient(90deg,#7667c8,#ab99ff)}.compare-value{text-align:right;font-family:var(--mono);font-size:11px;color:#d8e5ec}
+.stage-viz{display:grid;grid-template-columns:repeat(6,minmax(90px,1fr));gap:9px;align-items:end;margin-top:18px}.stage-col{min-width:0}.stage-bar{height:90px;display:flex;align-items:flex-end;border-radius:14px 14px 10px 10px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.035);overflow:hidden}.stage-bar i{display:block;width:100%;min-height:4px;background:linear-gradient(180deg,rgba(91,231,255,.85),rgba(91,231,255,.15));transition:height .45s ease}.stage-col:nth-child(2) .stage-bar i{background:linear-gradient(180deg,rgba(159,140,255,.85),rgba(159,140,255,.15))}.stage-col:nth-child(3) .stage-bar i{background:linear-gradient(180deg,rgba(126,242,189,.85),rgba(126,242,189,.15))}.stage-col:nth-child(4) .stage-bar i{background:linear-gradient(180deg,rgba(245,196,107,.85),rgba(245,196,107,.15))}.stage-col:nth-child(5) .stage-bar i{background:linear-gradient(180deg,rgba(255,128,152,.85),rgba(255,128,152,.15))}.stage-col:nth-child(6) .stage-bar i{background:linear-gradient(180deg,rgba(91,231,255,.85),rgba(159,140,255,.22))}.stage-label{font-size:9px;color:#7f91a2;text-transform:uppercase;letter-spacing:.07em;margin-top:7px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sens-row{cursor:pointer;border-radius:9px;padding:3px 5px;margin:0 -5px}.sens-row:hover,.sens-row.selected{background:rgba(91,231,255,.045)}.sens-explain{margin-top:12px;min-height:62px;border-top:1px solid var(--line);padding-top:11px}.sens-explain b{font-size:12px}.sens-explain span{font-size:11px;color:var(--muted);display:block;margin-top:3px}
+.memory-sim{display:grid;grid-template-columns:minmax(260px,.88fr) minmax(330px,1.12fr);gap:18px}.slider-row{display:grid;grid-template-columns:130px 1fr 70px;gap:10px;align-items:center;margin:12px 0}.slider-row label{margin:0;font-size:10px;color:#899aa9}.slider-row input[type=range]{width:100%;accent-color:#5be7ff}.slider-val{font-family:var(--mono);font-size:10px;text-align:right;color:#d4e3ea}.price-gauge{position:relative;height:188px;border:1px solid rgba(125,159,182,.12);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.005));overflow:hidden}.price-gauge .zero{position:absolute;left:50%;top:16px;bottom:28px;width:1px;background:rgba(255,255,255,.13)}.price-gauge .zone{position:absolute;top:16px;bottom:28px}.price-gauge .zone.down{right:50%;left:0;background:linear-gradient(90deg,rgba(255,128,152,.07),transparent)}.price-gauge .zone.up{left:50%;right:0;background:linear-gradient(90deg,transparent,rgba(126,242,189,.07))}.needle{position:absolute;top:34px;bottom:45px;left:50%;width:3px;border-radius:4px;background:#f4f7f8;box-shadow:0 0 16px rgba(255,255,255,.32);transform-origin:50% 100%;transition:left .35s ease}.gauge-number{position:absolute;left:0;right:0;bottom:40px;text-align:center;font-size:30px;font-weight:900;letter-spacing:-.04em}.gauge-caption{position:absolute;left:0;right:0;bottom:15px;text-align:center;font-size:9px;color:#758799;text-transform:uppercase;letter-spacing:.1em}.wafer-bars{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.wafer-box{padding:12px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.015)}.wafer-box b{display:block;font-size:18px}.wafer-box span{font-size:9px;color:#7f91a2;text-transform:uppercase;letter-spacing:.08em}
+.event-row-selected{background:rgba(91,231,255,.045)!important}.event-inspector{display:none;margin-top:14px}.event-inspector.show{display:block}.event-inspector-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.dedupe-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.dedupe-step{padding:10px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.015);font-size:10px}.dedupe-step b{display:block;color:#d8e5ec;margin-bottom:2px}.dedupe-step.active{border-color:rgba(126,242,189,.25);background:rgba(126,242,189,.045)}
+.stress-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.stress-btn{appearance:none;border:1px solid rgba(255,128,152,.18);background:rgba(255,128,152,.035);color:#efb3be;padding:8px 10px;border-radius:10px;cursor:pointer;font-size:10px;font-weight:800}.stress-btn:hover{background:rgba(255,128,152,.075);border-color:rgba(255,128,152,.35)}
+@media(max-width:900px){.memory-sim,.event-inspector-grid{grid-template-columns:1fr}.stage-viz{grid-template-columns:repeat(3,1fr)}.chain-inspector{grid-template-columns:1fr}.compare-row{grid-template-columns:92px 1fr 72px}.dedupe-flow{grid-template-columns:1fr 1fr}}
+
+
+/* multi-vertical production engine */
+.vertical-matrix{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:10px;margin-top:16px}.vertical-card{appearance:none;text-align:left;border:1px solid rgba(125,159,182,.13);background:linear-gradient(180deg,rgba(10,18,27,.82),rgba(6,11,17,.68));color:var(--text);border-radius:16px;padding:14px;cursor:pointer;min-height:132px;transition:.2s ease;position:relative;overflow:hidden}.vertical-card:after{content:"";position:absolute;inset:auto -20% -55% 20%;height:70px;background:radial-gradient(circle,rgba(91,231,255,.11),transparent 68%);pointer-events:none}.vertical-card:hover{border-color:rgba(91,231,255,.28);transform:translateY(-2px)}.vertical-card .vcode{font-family:var(--mono);font-size:9px;letter-spacing:.13em;color:#617789}.vertical-card b{display:block;font-size:14px;margin:9px 0 6px}.vertical-card p{font-size:10px;line-height:1.5;color:#7e91a1;margin:0}.vertical-card .vstate{display:inline-flex;margin-top:10px;font-family:var(--mono);font-size:9px;color:#a9eecb;border:1px solid rgba(107,230,174,.18);background:rgba(107,230,174,.055);padding:4px 7px;border-radius:999px}
+.vertical-hero{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(300px,.92fr);gap:18px;align-items:stretch}.vertical-diagram{position:relative;min-height:250px;border:1px solid rgba(125,159,182,.12);border-radius:18px;background:radial-gradient(circle at 50% 45%,rgba(91,231,255,.06),transparent 40%),rgba(4,9,14,.55);overflow:hidden;padding:18px}.vertical-diagram .flowline{position:absolute;left:12%;right:12%;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(91,231,255,.35),rgba(107,230,174,.32),transparent)}.vnode{position:absolute;width:112px;min-height:60px;border:1px solid rgba(125,159,182,.16);background:rgba(8,15,23,.92);border-radius:14px;padding:10px;display:grid;align-content:center;z-index:2}.vnode b{font-size:11px}.vnode small{font-size:9px;color:#708494;line-height:1.35}.vnode.a{left:4%;top:38%}.vnode.b{left:27%;top:18%}.vnode.c{left:27%;top:62%}.vnode.d{right:27%;top:18%}.vnode.e{right:27%;top:62%}.vnode.f{right:4%;top:38%}.vnode.hot{border-color:rgba(91,231,255,.3);box-shadow:0 0 28px rgba(91,231,255,.06)}
+.capacity{margin-top:12px}.capacity-head{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:#8194a5;margin-bottom:6px}.capacity-track{height:10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.035);border-radius:999px;overflow:hidden}.capacity-fill{height:100%;width:0;background:linear-gradient(90deg,#4d87a1,#67d2c1);border-radius:inherit;transition:width .3s ease,background .3s ease}.capacity-fill.warn{background:linear-gradient(90deg,#c39d65,#e08c77)}.capacity-fill.hot{background:linear-gradient(90deg,#cf6f80,#ff8aa3)}
+.vertical-out{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.vertical-out .metric{min-height:86px}.mini-bars{display:grid;gap:9px;margin-top:12px}.mini-bar{display:grid;grid-template-columns:120px 1fr 70px;gap:9px;align-items:center}.mini-bar label{font-size:9px;color:#8092a1;margin:0}.mini-bar .track{height:8px;background:rgba(255,255,255,.03);border-radius:999px;overflow:hidden}.mini-bar .fill{height:100%;background:#6b8798;border-radius:999px;transition:width .25s ease}.mini-bar b{text-align:right;font-family:var(--mono);font-size:10px}
+.vertical-note{border-left:2px solid rgba(91,231,255,.36);padding:10px 12px;background:rgba(91,231,255,.025);font-size:10px;color:#8194a4;line-height:1.55;border-radius:0 10px 10px 0}.production-link{font-family:var(--mono);font-size:9px;color:#668092;margin-top:8px}.production-link strong{color:#a7bbc8}
+@media(max-width:1150px){.vertical-matrix{grid-template-columns:repeat(3,1fr)}.vertical-hero{grid-template-columns:1fr}.vertical-diagram{min-height:230px}}@media(max-width:720px){.vertical-matrix{grid-template-columns:1fr 1fr}.vertical-out{grid-template-columns:1fr 1fr}.vnode{width:96px}.vnode.b,.vnode.c{left:25%}.vnode.d,.vnode.e{right:25%}}@media(max-width:480px){.vertical-matrix{grid-template-columns:1fr}.vertical-diagram{display:none}.vertical-out{grid-template-columns:1fr}.mini-bar{grid-template-columns:90px 1fr 60px}}
+
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brandwrap"><div class="brand-orb">BX</div><div><div class="brand">BOM<span>-X</span></div><div class="tag">Physical AI Research Terminal</div></div></div>
+  <div class="nav" id="nav">
+    <button data-tab="command" class="active"><span class="nav-icon">◇</span><span>Command Center</span></button>
+    <button data-tab="backsolver"><span class="nav-icon">↯</span><span>Demand Backsolver</span></button>
+    <button data-tab="events"><span class="nav-icon">◎</span><span>Event Library</span></button>
+    <button data-tab="memory"><span class="nav-icon">▦</span><span>Memory / Earnings</span></button>
+    <button data-tab="foundry"><span class="nav-icon">◫</span><span>Foundry / Packaging</span></button>
+    <button data-tab="network"><span class="nav-icon">⇄</span><span>Networking / Optics</span></button>
+    <button data-tab="power"><span class="nav-icon">ϟ</span><span>Power / Cooling</span></button>
+    <button data-tab="wfe"><span class="nav-icon">⌬</span><span>WFE / Test</span></button>
+    <button data-tab="backtest"><span class="nav-icon">∿</span><span>Backtest Lab</span></button>
+    <button data-tab="tactical"><span class="nav-icon">⌁</span><span>Tactical Regime</span></button>
+    <button data-tab="build"><span class="nav-icon">⌘</span><span>Build / Methodology</span></button>
+  </div>
+  <div class="status"><div class="status-head"><span><span class="dot"></span>Engine online</span><span>v0.3</span></div>Structural demand engine · live<br>Point-in-time discipline · enforced<br>Sensitivity harness · active</div>
+</aside>
+<main>
+<div class="topbar"><div class="topbar-left"><span class="crumb">BOM-X / RESEARCH TERMINAL</span><span class="live-pill"><span class="dot"></span>LIVE MODEL</span></div><div class="topbar-right"><span class="top-chip">STRUCTURAL</span><span class="top-chip">POINT-IN-TIME</span><span class="top-chip">5 VERTICALS</span></div></div>
+<section id="command" class="tab active">
+  <div class="hero-shell">
+    <div class="hero-copy"><div class="eyebrow">Physical-economy expectations arbitrage</div><h1>Translate AI demand into silicon reality.</h1><p class="lede">BOM-X follows the chain from software demand to compute, memory, supply constraints and supplier earnings—then asks what the market has already priced.</p><div class="action-row" style="margin:18px 0 4px"><button class="action-btn primary" type="button" id="openBacksolver">Run a live scenario ↗</button><button class="action-btn" type="button" id="stressHome">Stress the thesis</button><button class="action-btn" type="button" id="openEvents">Inspect event graph</button></div><div class="signal-ribbon"><span class="signal-chip"><i></i><b>Demand</b> contracts · tokens · capex</span><span class="signal-chip"><i></i><b>Physical</b> GPU · HBM · NAND</span><span class="signal-chip"><i></i><b>Financial</b> ASP · EPS · consensus</span></div></div>
+    <div class="hero-visual" aria-label="BOM-X causal network visualization"><div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div><div class="core-orb">SOFTWARE<br>→ SILICON</div><div class="satellite sat-a"><b>TOKENS</b>workload demand</div><div class="satellite sat-b"><b>HBM</b>capacity pressure</div><div class="satellite sat-c"><b>NAND</b>storage intensity</div><div class="satellite sat-d"><b>EPS</b>expectation gap</div><div class="satellite sat-e"><b>RATES</b>duration overlay</div><div class="hero-caption"><span>CAUSAL RESEARCH GRAPH</span><span>PHYSICAL → FINANCIAL</span></div></div>
+  </div>
+  <div class="grid g4 section">
+    <div class="card kpi"><div class="l">Verified event library</div><div class="n">25</div><div class="s">2023–2026 official-source events</div><div class="spark"></div></div>
+    <div class="card kpi"><div class="l">Production verticals</div><div class="n">5</div><div class="s">memory · silicon · network · power · equipment</div><div class="spark"></div></div>
+    <div class="card kpi"><div class="l">Engine status</div><div class="n">Live</div><div class="s">Contract → compute → BOM → EPS</div><div class="spark"></div></div>
+    <div class="card kpi"><div class="l">Backtest integrity</div><div class="n">PIT</div><div class="s">Consensus / returns remain point-in-time</div><div class="spark"></div></div>
+  </div>
+  <div class="card section">
+    <h2>The causal chain</h2>
+    <div class="pipeline">
+      <div class="node chain-node active" data-chain="software" tabindex="0"><strong>AI software</strong><small>users · agents · tokens · contracts</small></div><div class="arrow">→</div>
+      <div class="node chain-node" data-chain="compute" tabindex="0"><strong>Compute</strong><small>hours · utilization · goodput</small></div><div class="arrow">→</div>
+      <div class="node chain-node" data-chain="bom" tabindex="0"><strong>BOM</strong><small>GPU · HBM · DRAM · NAND</small></div><div class="arrow">→</div>
+      <div class="node chain-node" data-chain="supply" tabindex="0"><strong>Supply</strong><small>yield · capacity · inventory</small></div><div class="arrow">→</div>
+      <div class="node chain-node" data-chain="earnings" tabindex="0"><strong>Earnings</strong><small>units · ASP · share · margin</small></div><div class="arrow">→</div>
+      <div class="node chain-node" data-chain="expectations" tabindex="0"><strong>Expectations</strong><small>consensus · revisions · implied</small></div><div class="arrow">→</div>
+      <div class="node chain-node" data-chain="signal" tabindex="0"><strong>Signal</strong><small>economic implication − priced view</small></div>
+    </div>
+    <div class="formula">StructuralAlpha(i,t) = EconomicImplication(i,t) − MarketExpectation(i,t)</div><div class="chain-inspector" id="chainInspector"><div class="ci-title" id="chainTitle">AI SOFTWARE</div><p id="chainText">Start upstream: contracts, active users, token volumes, model mix and agentic amplification. The point is to estimate economic workload before looking at the supplier stock.</p></div>
+  </div>
+  <div class="card section">
+    <div class="eyebrow">Production map</div><h3 style="margin-top:10px;font-size:20px">One AI demand shock, five physical verticals</h3><p class="small">Each module consumes the same installed-accelerator state from the dual backsolver. Click a vertical to inspect its production constraint and earnings bridge.</p>
+    <div class="vertical-matrix">
+      <button class="vertical-card" type="button" data-goto="memory"><span class="vcode">01 / MEMORY</span><b>HBM + NAND</b><p>Bits, shared wafer capacity, contract pricing and supplier EPS.</p><span class="vstate">LIVE</span></button>
+      <button class="vertical-card" type="button" data-goto="foundry"><span class="vcode">02 / SILICON</span><b>Foundry + Packaging</b><p>Die equivalents, wafer starts, yield, package units and bottleneck load.</p><span class="vstate">LIVE</span></button>
+      <button class="vertical-card" type="button" data-goto="network"><span class="vcode">03 / FABRIC</span><b>Networking + Optics</b><p>Ports, optical modules, bandwidth generation and silicon content.</p><span class="vstate">LIVE</span></button>
+      <button class="vertical-card" type="button" data-goto="power"><span class="vcode">04 / INFRA</span><b>Power + Cooling</b><p>IT MW, facility MW, racks, CDUs and electrical infrastructure spend.</p><span class="vstate">LIVE</span></button>
+      <button class="vertical-card" type="button" data-goto="wfe"><span class="vcode">05 / TOOLS</span><b>WFE + Test</b><p>Capacity gap, wafer-equivalent starts, ATE seconds and tool demand.</p><span class="vstate">LIVE</span></button>
+    </div>
+  </div>
+  <div class="grid g2 section">
+    <div class="card">
+      <h3>Why memory first</h3>
+      <p>HBM content is directly tied to accelerator architecture, while storage intensity can be cross-checked against real cluster disclosures. Memory also adds a nonlinear price-cycle channel: a small demand error near full utilization can create a much larger revenue and margin error.</p>
+      <div class="callout">xAI reports a 200k-GPU Colossus build with more than 0.5 EB of storage. BOM-X uses that as an empirical storage-intensity anchor—not as a universal constant.</div>
+    </div>
+    <div class="card">
+      <h3>First falsifiable experiment</h3>
+      <p><b>AI commitment / usage → component demand → MU / SNDK EPS → consensus gap → 5d / 20d / 60d abnormal returns.</b></p>
+      <p class="small">The current prototype has the physical and supplier bridges. Point-in-time consensus, revisions, price/factor returns and transaction-cost feeds are deliberately marked pending rather than simulated as historical fact.</p>
+    </div>
+  </div>
+  <div class="section card">
+    <div class="eyebrow">MVP model-risk controls</div><h3 style="margin-top:10px;font-size:20px">What must be true before the signal is trusted</h3>
+    <div class="risk-grid section"><div class="risk-card"><div class="num">01 / UNCERTAINTY</div><b>Variance first</b><p>Rank error sources before adding model complexity. ASP, supplier share and spare capacity are explicit sensitivity dimensions.</p></div><div class="risk-card"><div class="num">02 / IDENTITY</div><b>Deduplicate commitments</b><p>One physical build can surface as a model contract, cloud capex and silicon order. Canonical commitment IDs prevent triple counting.</p></div><div class="risk-card"><div class="num">03 / PRICE</div><b>Bound memory response</b><p>HBM and commodity DRAM share wafer capacity; pricing uses bounded tightness and contract pass-through rather than an unbounded ratio.</p></div><div class="risk-card"><div class="num">04 / INFERENCE</div><b>Cluster by event</b><p>Effective N is the number of independent events. Supplier observations are clustered and horizons require multiple-testing control.</p></div></div>
+  </div>
+  <div class="section card">
+    <h3>Current calibration anchors</h3>
+    <div class="grid g3">
+      <div><span class="badge live">Official</span><p>OpenAI/Oracle: 4.5 GW added Stargate capacity; OpenAI said >5 GW under development would run >2M chips.</p><a href="https://openai.com/index/stargate-advances-with-partnership-with-oracle/" target="_blank">Source ↗</a></div>
+      <div><span class="badge live">Official</span><p>OpenAI/NVIDIA: at least 10 GW of NVIDIA systems, representing millions of GPUs.</p><a href="https://openai.com/index/openai-nvidia-systems-partnership/" target="_blank">Source ↗</a></div>
+      <div><span class="badge live">Official</span><p>Anthropic/AWS: >$100B over ten years, securing up to 5 GW of new compute.</p><a href="https://www.anthropic.com/news/anthropic-amazon-compute" target="_blank">Source ↗</a></div>
+    </div>
+  </div>
+</section>
+
+<section id="backsolver" class="tab">
+  <div class="eyebrow">Structural engine</div><h2>Demand Backsolver</h2><p class="lede">Reverse an AI contract into accelerator-hours, installed hardware and memory/storage demand. Every economically important bridge is exposed as an assumption.</p><div class="presetbar" id="presetbar"><button class="preset-btn active" type="button" data-preset="base">$100M base case</button><button class="preset-btn" type="button" data-preset="scale">$1B scale-up</button><button class="preset-btn" type="button" data-preset="tight">Tight memory</button><button class="preset-btn" type="button" data-preset="spare">Spare-capacity absorbs</button><button class="preset-btn" type="button" data-preset="agent">Agentic workload</button></div>
+  <div class="grid g2 section">
+    <div class="card">
+      <h3>Contract → compute assumptions</h3>
+      <div class="inline"><div><label>Annual commitment ($M)</label><input id="commit" type="number" value="100"></div><div><label>Compute-cost share (%)</label><input id="computeShare" type="number" value="50"></div></div>
+      <div class="inline"><div><label>Effective accelerator-hour ($)</label><input id="hourCost" type="number" step="0.1" value="4"></div><div><label>Target utilization (%)</label><input id="util" type="number" value="60"></div></div>
+      <div class="inline"><div><label>Usable spare capacity (%)</label><input id="spare" type="number" value="0"></div><div><label>Peak/SLA reserve (×)</label><input id="reserve" type="number" step="0.05" value="1"></div></div>
+      <label>Accelerator platform</label><select id="platform"></select>
+      <label>Storage intensity (TB / accelerator)</label><input id="storageTB" type="number" step="0.1" value="2.5">
+      <p class="small">Storage is a workload/architecture prior, not part of the GPU's literal package BOM.</p>
+    </div>
+    <div class="card">
+      <h3>Physical implication</h3>
+      <div class="out">
+        <div class="metric"><b id="oHours">—</b><span>accelerator-hours (M)</span></div>
+        <div class="metric"><b id="oContinuous">—</b><span>continuous accel equivalents</span></div>
+        <div class="metric"><b id="oInstalled">—</b><span>incremental installed accels</span></div>
+        <div class="metric"><b id="oHBM">—</b><span>HBM PB</span></div>
+        <div class="metric"><b id="oNAND">—</b><span>storage PB</span></div>
+        <div class="metric"><b id="oMW">—</b><span>accelerator-only MW</span></div>
+      </div>
+      <div class="formula section">AccelHours = Commitment × ComputeShare ÷ $/AccelHour<br>Installed = (AccelHours ÷ 8,760) × Reserve ÷ Utilization × (1 − SpareCapacity)<br>HBM = Installed × HBM_GB_per_accel<br>Storage = Installed × TB_per_accel</div>
+      <div class="callout" id="platformNote"></div>
+    </div>
+  </div>
+  <div class="card section">
+    <h3>Independent workload cross-check</h3>
+    <div class="grid g4">
+      <div><label>Users (M)</label><input id="usersM" type="number" value="10"></div>
+      <div><label>Queries / user / day</label><input id="queries" type="number" value="8"></div>
+      <div><label>Tokens / query</label><input id="tokens" type="number" value="2500"></div>
+      <div><label>Agent amplification (×)</label><input id="agentAmp" type="number" step="0.1" value="2"></div>
+      <div><label>GPU-sec / 1k tokens</label><input id="gpuSec" type="number" step="0.05" value="0.8"></div>
+      <div><label>Workload utilization (%)</label><input id="workUtil" type="number" value="60"></div>
+      <div class="metric"><b id="annualTokens">—</b><span>annual tokens</span></div>
+      <div class="metric"><b id="workAccels">—</b><span>workload-implied accels</span></div>
+    </div>
+    <p class="small">GPU-sec/1k tokens is intentionally explicit because model architecture, batching, quantization, speculative decoding and latency targets can move it dramatically. BOM-X should estimate it by workload class rather than hide it.</p>
+  </div>
+  <div class="grid g2 section">
+    <div class="viz-panel"><div class="viz-head"><div><div class="viz-title">Dual-backsolver disagreement</div><div class="viz-sub">Dollar-implied vs workload-implied installed accelerators</div></div><span class="diag-pill" id="diagPill">—</span></div><div class="compare-chart"><div class="compare-row"><div class="compare-label">Dollars → compute</div><div class="compare-track"><div id="dollarBar" class="compare-fill" style="width:0%"></div></div><div class="compare-value" id="dollarBarVal">—</div></div><div class="compare-row"><div class="compare-label">Workload → compute</div><div class="compare-track"><div id="workBar" class="compare-fill work" style="width:0%"></div></div><div class="compare-value" id="workBarVal">—</div></div></div><div class="callout section" id="diagText">The disagreement is a diagnostic. BOM-X does not average incompatible stories into false precision.</div></div>
+    <div class="viz-panel"><div class="viz-head"><div><div class="viz-title">Physical demand waterfall</div><div class="viz-sub">Normalized visual trace of the current scenario</div></div><span class="diag-pill ok">LIVE</span></div><div class="stage-viz"><div class="stage-col"><div class="stage-bar"><i id="stCommit"></i></div><div class="stage-label">commitment</div></div><div class="stage-col"><div class="stage-bar"><i id="stHours"></i></div><div class="stage-label">accel-hours</div></div><div class="stage-col"><div class="stage-bar"><i id="stAccels"></i></div><div class="stage-label">accelerators</div></div><div class="stage-col"><div class="stage-bar"><i id="stHbm"></i></div><div class="stage-label">HBM</div></div><div class="stage-col"><div class="stage-bar"><i id="stNand"></i></div><div class="stage-label">NAND</div></div><div class="stage-col"><div class="stage-bar"><i id="stEps"></i></div><div class="stage-label">EPS bridge</div></div></div></div>
+  </div>
+  <div class="grid g2 section">
+    <div class="card"><div class="eyebrow">Stylized $100M case</div><h3 style="margin-top:10px">Variance decomposition</h3><p class="small">Approximate first-order Sobol indices using transparent scenario ranges. This is a model-risk diagnostic, not an empirical forecast. Click a bar to inspect why the input matters.</p><div id="sensList" class="sens-list"></div><div class="sens-explain" id="sensExplain"><b>Select a sensitivity bar</b><span>Use the ranking to decide where another hour of data work has the highest expected value.</span></div><button class="btn section" id="rerunSensitivity" type="button">Re-run deterministic sensitivity</button></div>
+    <div class="card"><h3>Ranges used by the harness</h3><div class="formula">Compute share: 45–60%
+$/accel-hour: $3.5–$4.5
+Utilization: 55–70%
+Spare capacity: 0–35%
+Peak reserve: 1.00–1.15×
+HBM: 160–192 GB / accel
+Supplier share: 18–32%
+Fill rate: 80–100%
+HBM ASP: $7–$13 / GB
+Incremental margin: 32–38%</div><div class="callout section">If a parameter dominates output variance, data effort belongs there before more architecture is added.</div></div>
+  </div>
+</section>
+
+<section id="events" class="tab">
+  <div class="eyebrow">Point-in-time seed set</div><h2>Historical AI Infrastructure Event Library</h2><p class="lede">The first experiment needs events that were observable at the time. This seed set uses official company / investor sources and records the physical quantity exposed by the announcement.</p>
+  <div class="grid g2 section"><div class="card"><h3>Commitment identity graph</h3><p class="small">Announcements are not additive by default. Every record should resolve to a canonical physical commitment before it reaches the backsolver.</p><div class="graph-mini"><div class="graph-node gn1"><b>MODEL PROVIDER</b>$ compute contract</div><div class="graph-node gn2"><b>CLOUD</b>capex / lease</div><div class="graph-node gn3"><b>DATACENTER</b>GW / site build</div><div class="graph-node gn4"><b>SILICON</b>GPU / HBM order</div><div class="graph-edge" style="left:26%;top:49%;width:19%;transform:rotate(-27deg)"></div><div class="graph-edge" style="left:26%;top:52%;width:19%;transform:rotate(27deg)"></div><div class="graph-edge" style="left:49%;top:26%;width:39%;transform:rotate(26deg)"></div><div class="graph-edge" style="left:49%;top:75%;width:39%;transform:rotate(-25deg)"></div></div></div><div class="card"><h3>Deduplication rules</h3><div class="statusrow"><span>Canonical commitment_id / parent_program_id</span><span class="check">REQUIRED</span></div><div class="statusrow"><span>Financing vs physical capacity separated</span><span class="check">REQUIRED</span></div><div class="statusrow"><span>Incremental vs restated quantity tagged</span><span class="check">REQUIRED</span></div><div class="statusrow"><span>Cloud ↔ model ↔ chip links time-bounded</span><span class="check">REQUIRED</span></div><div class="statusrow"><span>Graph-level automated resolution</span><span class="wait">NEXT</span></div><p class="small">Circular structures such as vendor financing or equity-for-compute remain provenance edges; they do not create additional physical demand unless new capacity is actually committed.</p></div></div>
+  <div class="toolbar"><input id="eventSearch" placeholder="Search entity or headline"><select id="eventType"><option value="">All event types</option></select></div>
+  <div class="tablewrap"><table><thead><tr><th>Date</th><th>Entity</th><th>Event</th><th>Quantity</th><th>Physical read-through</th><th>Source</th></tr></thead><tbody id="eventBody"></tbody></table></div><div class="event-inspector card" id="eventInspector"><div class="event-inspector-grid"><div><div class="eyebrow">Selected event</div><h3 id="eventInspectorTitle">—</h3><p id="eventInspectorHeadline" class="small">Select a row to inspect how BOM-X would resolve it.</p><div class="dedupe-flow"><div class="dedupe-step active"><b>1 · Identity</b>canonical commitment</div><div class="dedupe-step"><b>2 · Incrementality</b>new vs restated</div><div class="dedupe-step"><b>3 · Physical unit</b>$ / GW / chips</div><div class="dedupe-step"><b>4 · Backsolver</b>compute → BOM</div></div></div><div><div class="statusrow"><span>Reported quantity</span><span id="eventInspectorQty" class="check">—</span></div><div class="statusrow"><span>Source confidence</span><span id="eventInspectorConf" class="check">—</span></div><div class="statusrow"><span>Deduplication state</span><span class="wait">REVIEW</span></div><div class="action-row section"><button class="action-btn primary" type="button" id="loadEventScenario">Load into backsolver</button><button class="action-btn" type="button" id="closeEventInspector">Close</button></div></div></div></div>
+</section>
+
+<section id="memory" class="tab">
+  <div class="eyebrow">First production vertical</div><h2>Memory → Supplier Earnings Bridge</h2><p class="lede">Convert the physical demand output into supplier revenue and EPS sensitivity. Supplier share, ASP and incremental margin are explicit scenario variables, not hidden “facts.”</p>
+  <div class="grid g2 section">
+    <div class="card">
+      <h3>Micron — HBM scenario</h3>
+      <div class="inline"><div><label>MU share of modeled HBM (%)</label><input id="muShare" value="20" type="number"></div><div><label>HBM ASP ($/GB)</label><input id="hbmAsp" value="12" type="number" step="0.5"></div></div>
+      <div class="inline"><div><label>Incremental net margin (%)</label><input id="muMargin" value="45" type="number"></div><div><label>Diluted shares (M)</label><input id="muShares" value="1150" type="number"></div></div>
+      <div class="out section"><div class="metric"><b id="muRev">—</b><span>incremental revenue</span></div><div class="metric"><b id="muNI">—</b><span>incremental net income</span></div><div class="metric"><b id="muEPS">—</b><span>incremental EPS</span></div></div>
+    </div>
+    <div class="card">
+      <h3>Sandisk — enterprise NAND scenario</h3>
+      <div class="inline"><div><label>SNDK share of modeled NAND (%)</label><input id="sndkShare" value="15" type="number"></div><div><label>Enterprise NAND ASP ($/TB)</label><input id="nandAsp" value="175" type="number" step="5"></div></div>
+      <div class="inline"><div><label>Incremental net margin (%)</label><input id="sndkMargin" value="45" type="number"></div><div><label>Diluted shares (M)</label><input id="sndkShares" value="155" type="number"></div></div>
+      <div class="out section"><div class="metric"><b id="sndkRev">—</b><span>incremental revenue</span></div><div class="metric"><b id="sndkNI">—</b><span>incremental net income</span></div><div class="metric"><b id="sndkEPS">—</b><span>incremental EPS</span></div></div>
+    </div>
+  </div>
+  <div class="grid g2 section">
+    <div class="card"><h3>Expectation gap</h3><label>Current consensus EPS estimate</label><input id="consEPS" type="number" value="0" step="0.1"><label>Physical model baseline EPS before this event</label><input id="baseEPS" type="number" value="0" step="0.1"><div class="metric section"><b id="epsGap">—</b><span>BOM-X incremental EPS gap (selected supplier sensitivity)</span></div><p class="small">This manual input exists because a legitimate historical backtest requires point-in-time consensus snapshots. Current consensus reconstructed after the fact would leak information.</p></div>
+    <div class="card"><h3>Coupled memory price layer</h3><p>The price model is bounded and contract-aware. HBM and commodity DRAM compete for shared wafer capacity rather than living in isolated supply curves.</p><div class="formula">Tightness = (Demand − EffectiveSupply) / max(EffectiveSupply, ε)
+Δln(ASP) = β · tanh(Tightness / κ) · PassThrough(t)
+DRAM_WaferLoad = DDR_bits / η_DDR + λ_HBM · HBM_bits / η_HBM
+λ_HBM &gt; 1 captures higher wafer intensity; PassThrough(t) reflects LTAs / annual resets / spot exposure.</div><p class="small">The bounded tanh term prevents explosive prices; contract timing determines when physical tightness reaches reported revenue and EPS.</p></div>
+  </div>
+  <div class="card section">
+    <div class="eyebrow">Interactive price layer</div><h3 style="margin-top:10px">Stress HBM / DRAM tightness and contract pass-through</h3>
+    <div class="memory-sim section">
+      <div>
+        <div class="slider-row"><label for="memDemand">Demand index</label><input id="memDemand" type="range" min="70" max="140" value="110"><span class="slider-val" id="memDemandVal">110</span></div>
+        <div class="slider-row"><label for="memSupply">Effective supply</label><input id="memSupply" type="range" min="70" max="140" value="100"><span class="slider-val" id="memSupplyVal">100</span></div>
+        <div class="slider-row"><label for="memBeta">Price elasticity β</label><input id="memBeta" type="range" min="5" max="80" value="35"><span class="slider-val" id="memBetaVal">0.35</span></div>
+        <div class="slider-row"><label for="memKappa">Saturation κ</label><input id="memKappa" type="range" min="10" max="100" value="40"><span class="slider-val" id="memKappaVal">0.40</span></div>
+        <div class="slider-row"><label for="memPass">Contract pass-through</label><input id="memPass" type="range" min="0" max="100" value="65"><span class="slider-val" id="memPassVal">65%</span></div>
+        <div class="slider-row"><label for="hbmWafer">HBM wafer intensity</label><input id="hbmWafer" type="range" min="100" max="400" value="250"><span class="slider-val" id="hbmWaferVal">2.50×</span></div>
+        <div class="stress-strip"><button type="button" class="stress-btn" data-memstress="glut">Supply glut</button><button type="button" class="stress-btn" data-memstress="balanced">Balanced</button><button type="button" class="stress-btn" data-memstress="tight">HBM squeeze</button><button type="button" class="stress-btn" data-memstress="lta">Slow LTA pass-through</button></div>
+      </div>
+      <div>
+        <div class="price-gauge" aria-label="Memory ASP response gauge"><div class="zone down"></div><div class="zone up"></div><div class="zero"></div><div class="needle" id="priceNeedle"></div><div class="gauge-number" id="priceMove">—</div><div class="gauge-caption">modeled ASP response · bounded / contract-aware</div></div>
+        <div class="wafer-bars"><div class="wafer-box"><b id="tightnessOut">—</b><span>normalized tightness</span></div><div class="wafer-box"><b id="waferLoadOut">—</b><span>HBM-adjusted wafer load</span></div></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section id="foundry" class="tab">
+  <div class="eyebrow">Production vertical 02</div><h2>Foundry + Advanced Packaging</h2><p class="lede">Translate accelerator demand into logic die equivalents, 300 mm wafer starts and advanced-package load. The objective is to distinguish a GPU-unit story from the actual manufacturing bottleneck.</p>
+  <div class="presetbar"><button class="preset-btn active" type="button" data-fpreset="base">Monolithic base</button><button class="preset-btn" type="button" data-fpreset="chiplet">Chiplet-heavy</button><button class="preset-btn" type="button" data-fpreset="yield">Yield miss</button><button class="preset-btn" type="button" data-fpreset="squeeze">Packaging squeeze</button></div>
+  <div class="vertical-hero section">
+    <div class="card">
+      <h3>Production assumptions</h3>
+      <div class="inline"><div><label>Logic die area (mm²)</label><input id="fDieArea" type="number" value="600" min="50"></div><div><label>Die equivalents / accelerator</label><input id="fDieEq" type="number" value="1" min="0.25" step="0.25"></div></div>
+      <div class="inline"><div><label>Yield (%)</label><input id="fYield" type="number" value="75" min="5" max="99"></div><div><label>Foundry wafer ASP ($)</label><input id="fWaferAsp" type="number" value="18000" min="1000" step="500"></div></div>
+      <div class="inline"><div><label>Advanced-package ASP ($/unit)</label><input id="fPkgAsp" type="number" value="5500" min="100"></div><div><label>Package capacity (k units / yr)</label><input id="fPkgCap" type="number" value="100" min="1"></div></div>
+      <div class="inline"><div><label>Foundry capture share (%)</label><input id="fFoundryShare" type="number" value="100" min="0" max="100"></div><div><label>Packaging capture share (%)</label><input id="fPkgShare" type="number" value="80" min="0" max="100"></div></div>
+      <div class="capacity"><div class="capacity-head"><span>advanced-package capacity load</span><b id="fLoadLabel">—</b></div><div class="capacity-track"><div class="capacity-fill" id="fLoadBar"></div></div></div>
+    </div>
+    <div class="vertical-diagram" aria-label="foundry and packaging flow"><div class="flowline"></div><div class="vnode a hot"><b>ACCELERATORS</b><small id="fDiagAccel">— installed</small></div><div class="vnode b"><b>DIE AREA</b><small id="fDiagArea">— mm²</small></div><div class="vnode c"><b>YIELD</b><small id="fDiagYield">—%</small></div><div class="vnode d"><b>WAFERS</b><small id="fDiagWafers">—</small></div><div class="vnode e"><b>PACKAGES</b><small id="fDiagPkg">—</small></div><div class="vnode f hot"><b>CAPTURE</b><small>foundry + package revenue</small></div></div>
+  </div>
+  <div class="vertical-out section"><div class="metric"><b id="fGoodDies">—</b><span>good dies / wafer</span></div><div class="metric"><b id="fWafers">—</b><span>logic wafers required</span></div><div class="metric"><b id="fPkgUnits">—</b><span>advanced packages</span></div><div class="metric"><b id="fFoundryRev">—</b><span>captured foundry revenue</span></div><div class="metric"><b id="fPkgRev">—</b><span>captured packaging revenue</span></div><div class="metric"><b id="fBottleneck">—</b><span>production read-through</span></div></div>
+  <div class="vertical-note section"><b>Research use:</b> a unit forecast can be right while the supplier trade is wrong if yield improves, chiplet partitioning changes, or package capacity expands faster than demand. These parameters are therefore time-versioned assumptions, not permanent platform facts.</div>
+</section>
+
+<section id="network" class="tab">
+  <div class="eyebrow">Production vertical 03</div><h2>Networking + Optics</h2><p class="lede">Map the accelerator footprint into switch ports, optical modules and aggregate fabric bandwidth. This module is designed to catch architecture transitions where networking content grows faster—or slower—than GPU units.</p>
+  <div class="presetbar"><button class="preset-btn active" type="button" data-npreset="base">800G scale-out</button><button class="preset-btn" type="button" data-npreset="copper">Copper-heavy rack</button><button class="preset-btn" type="button" data-npreset="1600">1.6T transition</button><button class="preset-btn" type="button" data-npreset="dense">Dense fabric</button></div>
+  <div class="grid g2 section">
+    <div class="card"><h3>Fabric assumptions</h3><div class="inline"><div><label>Optical modules / accelerator</label><input id="nModules" type="number" value="2.2" min="0" step="0.1"></div><div><label>Copper / local share (%)</label><input id="nCopper" type="number" value="20" min="0" max="100"></div></div><div class="inline"><div><label>Module speed (Gb/s)</label><input id="nSpeed" type="number" value="800" min="100" step="100"></div><div><label>Optics ASP ($/module)</label><input id="nOpticsAsp" type="number" value="900" min="10"></div></div><div class="inline"><div><label>Switch ports / accelerator</label><input id="nSwitchPorts" type="number" value="1.25" min="0" step="0.05"></div><div><label>Switch silicon $ / port</label><input id="nSwitchAsp" type="number" value="700" min="10"></div></div><div class="inline"><div><label>Optics supplier share (%)</label><input id="nOpticsShare" type="number" value="25" min="0" max="100"></div><div><label>Switch silicon share (%)</label><input id="nSwitchShare" type="number" value="35" min="0" max="100"></div></div></div>
+    <div class="card"><h3>Fabric mix</h3><div class="mini-bars"><div class="mini-bar"><label>Optical path</label><div class="track"><div class="fill" id="nOpticalBar"></div></div><b id="nOpticalPct">—</b></div><div class="mini-bar"><label>Copper / local</label><div class="track"><div class="fill" id="nCopperBar"></div></div><b id="nCopperPct">—</b></div><div class="mini-bar"><label>Bandwidth gen.</label><div class="track"><div class="fill" id="nSpeedBar"></div></div><b id="nSpeedLabel">—</b></div></div><div class="callout section">A network-content signal is strongest when the architecture transition changes <b>modules or bandwidth per accelerator</b>, not merely because more GPUs ship.</div></div>
+  </div>
+  <div class="vertical-out section"><div class="metric"><b id="nTransceivers">—</b><span>optical modules</span></div><div class="metric"><b id="nBandwidth">—</b><span>aggregate optical Tb/s</span></div><div class="metric"><b id="nPorts">—</b><span>switch ports</span></div><div class="metric"><b id="nOpticsRev">—</b><span>captured optics revenue</span></div><div class="metric"><b id="nSwitchRev">—</b><span>captured switch-silicon revenue</span></div><div class="metric"><b id="nIntensity">—</b><span>optics $ / accelerator</span></div></div>
+</section>
+
+<section id="power" class="tab">
+  <div class="eyebrow">Production vertical 04</div><h2>Power + Cooling Infrastructure</h2><p class="lede">Convert accelerators into IT load, facility MW, rack count and thermal infrastructure. This exposes a second physical constraint: compute demand can exist economically before grid, transformer or cooling capacity can serve it.</p>
+  <div class="presetbar"><button class="preset-btn active" type="button" data-ppreset="base">AI rack base</button><button class="preset-btn" type="button" data-ppreset="dense">High-density liquid</button><button class="preset-btn" type="button" data-ppreset="grid">Grid constrained</button><button class="preset-btn" type="button" data-ppreset="efficient">Efficiency gain</button></div>
+  <div class="grid g2 section">
+    <div class="card"><h3>Electrical + thermal assumptions</h3><div class="inline"><div><label>kW / accelerator</label><input id="pKw" type="number" value="0.75" min="0.1" step="0.05"></div><div><label>PUE</label><input id="pPue" type="number" value="1.20" min="1" step="0.01"></div></div><div class="inline"><div><label>Accelerators / rack</label><input id="pPerRack" type="number" value="72" min="1"></div><div><label>Liquid-cooled share (%)</label><input id="pLiquid" type="number" value="80" min="0" max="100"></div></div><div class="inline"><div><label>Liquid racks / CDU</label><input id="pRacksCdu" type="number" value="4" min="1"></div><div><label>Electrical infra ($M / MW)</label><input id="pElecM" type="number" value="2.5" min="0" step="0.1"></div></div><div class="inline"><div><label>Cooling infra ($M / MW)</label><input id="pCoolM" type="number" value="1.2" min="0" step="0.1"></div><div><label>Supplier capture share (%)</label><input id="pShare" type="number" value="20" min="0" max="100"></div></div></div>
+    <div class="card"><h3>Capacity constraint</h3><label>Available powered capacity (MW)</label><input id="pAvailableMW" type="number" value="100" min="1"><div class="capacity"><div class="capacity-head"><span>required / available powered capacity</span><b id="pLoadLabel">—</b></div><div class="capacity-track"><div class="capacity-fill" id="pLoadBar"></div></div></div><div class="formula section">FacilityMW = Accelerators × kW_per_accel × PUE / 1000<br>CoolingMW = IT_MW × LiquidShare<br>InfraSpend = FacilityMW × ($Electrical/MW + $Cooling/MW)</div></div>
+  </div>
+  <div class="vertical-out section"><div class="metric"><b id="pITMW">—</b><span>IT load MW</span></div><div class="metric"><b id="pFacilityMW">—</b><span>facility MW</span></div><div class="metric"><b id="pRacks">—</b><span>AI racks</span></div><div class="metric"><b id="pCDU">—</b><span>CDU-equivalent units</span></div><div class="metric"><b id="pInfraSpend">—</b><span>electrical + cooling spend</span></div><div class="metric"><b id="pCapturedRev">—</b><span>captured supplier revenue</span></div></div>
+</section>
+
+<section id="wfe" class="tab">
+  <div class="eyebrow">Production vertical 05</div><h2>WFE + Semiconductor Test</h2><p class="lede">Push the logic and HBM requirement one layer further upstream into wafer-equivalent capacity and production-test demand. This is intentionally a capacity-addition model—not a rule that every incremental wafer immediately creates equipment capex.</p>
+  <div class="presetbar"><button class="preset-btn active" type="button" data-wpreset="base">Existing spare capacity</button><button class="preset-btn" type="button" data-wpreset="tight">Tight fab</button><button class="preset-btn" type="button" data-wpreset="hbm">HBM intensive</button><button class="preset-btn" type="button" data-wpreset="test">Test bottleneck</button></div>
+  <div class="grid g2 section">
+    <div class="card"><h3>Capacity-addition assumptions</h3><div class="inline"><div><label>HBM GB / wafer-equivalent</label><input id="wHbmGBWafer" type="number" value="12000" min="100"></div><div><label>HBM wafer intensity multiplier</label><input id="wHbmIntensity" type="number" value="2.5" min="1" step="0.1"></div></div><div class="inline"><div><label>Existing spare WSPM</label><input id="wSpare" type="number" value="50" min="0" step="5"></div><div><label>Capex / +1k WSPM ($M)</label><input id="wCapexPerK" type="number" value="250" min="1"></div></div><div class="inline"><div><label>Test seconds / accelerator</label><input id="wTestSec" type="number" value="600" min="1"></div><div><label>Parallel sites / tool</label><input id="wParallel" type="number" value="8" min="1"></div></div><div class="inline"><div><label>ATE utilization (%)</label><input id="wUtil" type="number" value="70" min="5" max="95"></div><div><label>ATE ASP ($M / tool)</label><input id="wAteAsp" type="number" value="2.5" min="0.1" step="0.1"></div></div></div>
+    <div class="card"><h3>Upstream interpretation</h3><div class="statusrow"><span>Logic wafer requirement</span><span id="wLogicRead" class="check">—</span></div><div class="statusrow"><span>HBM wafer-equivalent requirement</span><span id="wHbmRead" class="check">—</span></div><div class="statusrow"><span>Capacity addition triggered?</span><span id="wTrigger" class="wait">—</span></div><div class="callout section">A positive component-demand shock does <b>not</b> imply near-term WFE revenue when existing fabs can absorb the wafer starts. The gap above effective spare capacity is the relevant state.</div></div>
+  </div>
+  <div class="vertical-out section"><div class="metric"><b id="wTotalWafers">—</b><span>annual wafer-equivalents</span></div><div class="metric"><b id="wWspm">—</b><span>wafer starts / month</span></div><div class="metric"><b id="wGap">—</b><span>capacity gap WSPM</span></div><div class="metric"><b id="wWfeSpend">—</b><span>implied WFE capex</span></div><div class="metric"><b id="wTools">—</b><span>ATE tools required</span></div><div class="metric"><b id="wTestSpend">—</b><span>test-equipment spend</span></div></div>
+</section>
+
+<section id="backtest" class="tab">
+  <div class="eyebrow">Research discipline</div><h2>Backtest Lab</h2><p class="lede">The system should be judged on whether its physical implication beats simpler baselines out of sample—not on whether a retrospective story sounds convincing.</p>
+  <div class="grid g2 section">
+    <div class="card"><h3>Experiment A · pre-registered MVP</h3><p><b>AI commitment → component demand → supplier EPS → underreaction.</b></p><div class="statusrow"><span>Event timestamp + official source</span><span class="check">READY</span></div><div class="statusrow"><span>Commitment identity / dedup graph</span><span class="wait">IN BUILD</span></div><div class="statusrow"><span>Contract → compute + BOM</span><span class="check">READY</span></div><div class="statusrow"><span>Physical KPI validation</span><span class="check">DESIGNED</span></div><div class="statusrow"><span>Point-in-time analyst consensus</span><span class="wait">FEED NEEDED</span></div><div class="statusrow"><span>Event-clustered 5d / 20d / 60d returns</span><span class="wait">FEED NEEDED</span></div><div class="statusrow"><span>Multiple-testing correction</span><span class="check">REQUIRED</span></div><div class="statusrow"><span>CVaR / tail optimization</span><span class="cut">CUT FROM MVP</span></div></div>
+    <div class="card"><h3>Benchmark ladder</h3><div class="statusrow"><span>0 · Market / sector beta</span><span class="badge">baseline</span></div><div class="statusrow"><span>1 · Momentum + analyst revisions</span><span class="badge">baseline</span></div><div class="statusrow"><span>2 · Linear customer/supplier propagation</span><span class="badge">first alpha test</span></div><div class="statusrow"><span>3 · State-space / Kalman</span><span class="badge pending">later</span></div><div class="statusrow"><span>4 · Gradient boosting</span><span class="badge pending">later</span></div><div class="statusrow"><span>5 · Temporal GNN</span><span class="badge pending">only if additive</span></div><div class="statusrow"><span>6 · RL execution/policy</span><span class="badge pending">last</span></div></div>
+  </div>
+  <div class="card section"><h3>Point-in-time rules</h3><div class="grid g3"><p>Exact publication and ingestion timestamps.</p><p>Supplier/BOM edges valid only over their known time interval.</p><p>Consensus snapshots must be as known on the event date.</p><p>No present-day reconstruction of “AI winners.”</p><p>Purged, embargoed walk-forward evaluation.</p><p>Abnormal returns must remove market/sector/factor exposure.</p></div></div>
+  <div class="grid g2 section"><div class="card"><h3>Inference unit = event</h3><p class="small">NVDA, MU, AVGO and suppliers reacting to one announcement do not create independent observations. Standard errors cluster by event; the effective N is the number of independent events. Horizon and universe searches require Holm/FDR-style correction.</p><div class="formula">SE = cluster(event_id)
+H = {5d, 20d, 60d}
+Reject only after multiple-testing control</div></div><div class="card"><h3>Physical ground truth</h3><p class="small">The engine is scored before the stock-return layer. This separates “physical model wrong” from “physical model right but already priced.”</p><div class="statusrow"><span>Bit shipments / mix</span><span class="badge live">KPI</span></div><div class="statusrow"><span>HBM revenue / capacity disclosures</span><span class="badge live">KPI</span></div><div class="statusrow"><span>DRAM / NAND ASP changes</span><span class="badge live">KPI</span></div><div class="statusrow"><span>Capex / WFE guidance</span><span class="badge live">KPI</span></div><div class="statusrow"><span>Contract-price indices</span><span class="badge live">KPI</span></div></div></div>
+</section>
+
+<section id="tactical" class="tab">
+  <div class="eyebrow">Separate short-horizon module</div><h2>Tactical Regime Engine</h2><p class="lede">Structural BOM-X says what the economic direction should be. The tactical engine asks whether the current tape is confirming, exhausting or fundamentally changing that view.</p>
+  <div class="prereg section"><div><strong>Pre-registration required before historical evaluation</strong><p>Freeze the AI-day filter, entry window, VWAP/breadth confirmation, 10Y/oil thresholds, horizons and automatic kill-switch. No discretionary edits after seeing results.</p></div><div class="lock">LOCK</div></div>
+  <div class="grid g2 section">
+    <div class="card"><div class="inline"><div><label>AI basket move (%)</label><input id="aiMove" value="-2.5" type="number" step="0.1"></div><div><label>10Y change (bp)</label><input id="yieldBp" value="-2" type="number"></div></div><div class="inline"><div><label>Oil move (%)</label><input id="oilMove" value="-1" type="number" step="0.1"></div><div><label>Day</label><select id="day"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Other</option></select></div></div><label><input id="vwap" type="checkbox" checked style="width:auto"> VWAP reclaimed</label><label><input id="breadth" type="checkbox" checked style="width:auto"> Breadth improving</label><label><input id="structuralNews" type="checkbox" style="width:auto"> New structural information</label><button class="btn section" onclick="calcRegime()">Classify regime</button></div>
+    <div class="card"><span class="badge">Output</span><div id="regimeName" class="regime section">—</div><div class="bar"><i id="regimeBar" style="width:0%"></i></div><p id="regimeWhy" class="small"></p><div class="callout">Monday/Friday are conditioning variables, not signals by themselves. A structural event overrides narrative-exhaustion logic.</div></div>
+  </div>
+</section>
+
+<section id="build" class="tab">
+  <div class="eyebrow">One product, not seven documents</div><h2>Build / Methodology</h2><p class="lede">The old product spec and Codex build prompt are folded into the site. The repository behind this page contains the executable structural engine, event data, API stub and tests.</p>
+  <div class="grid g3 section"><div class="card kpi"><div class="l">Core tests</div><div class="n">11/11</div><div class="s">engine · suppliers · verticals · regime · events · sensitivity</div></div><div class="card kpi"><div class="l">Frontend</div><div class="n">1 file</div><div class="s">self-contained static web app</div></div><div class="card kpi"><div class="l">Backend</div><div class="n">Python</div><div class="s">typed models + FastAPI-ready endpoints</div></div></div>
+  <details open><summary>Research-product specification</summary><div><pre class="docs"># AI/SEMI BOM-X
+## Physical Demand, Earnings &amp; Narrative Research Engine
+
+**Prepared:** September 23, 2026  
+**Core chain:** AI software demand -&gt; compute -&gt; semiconductor BOM -&gt; capacity -&gt; supplier earnings -&gt; expectations -&gt; trade.
+
+## 1. Product definition
+BOM-X is a quantamental research engine for AI infrastructure and semiconductors. It converts software usage, AI contracts, hyperscaler capex, accelerator roadmaps and infrastructure announcements into physical component demand, supplier revenue/EPS distributions, market-implied expectation gaps and event-driven research candidates.
+
+It contains two linked but separate engines:
+
+- **Structural physical-demand engine:** software usage/contracts/capex -&gt; tokens/workloads -&gt; accelerator-hours -&gt; accelerators/racks -&gt; HBM/DRAM/NAND/wafers/packaging/networking/power/cooling/WFE/test -&gt; supplier revenue/EPS -&gt; consensus/reverse-DCF gap.
+- **Narrative/regime engine:** material AI/security/regulation events + rates/oil/credit + breadth/price action -&gt; negative exhaustion, positive exhaustion, fundamental repricing, or no signal.
+
+The central research variable is:
+
+`StructuralAlpha(i,t) = EconomicImplication(i,t) - MarketExpectation(i,t)`
+
+where `i` is a security/supplier and `t` is decision time.
+
+## 2. Research thesis
+Semiconductor and AI-infrastructure economics are constrained by engineering. A software or capex announcement must become accelerators, memory, storage, packaging, networking, electricity and buildings. The mapping is uncertain, but not arbitrary.
+
+### 2.1 Component intensity
+`ComponentDemand(c,t) = sum_p Units(p,t) * Content(c,p,t)`
+
+- `c` = component class such as HBM, DDR, NAND, optics or power ICs.
+- `p` = platform/system such as accelerator, server or rack.
+- `Content(c,p,t)` = amount of component `c` required per platform `p` at time `t`.
+
+### 2.2 Efficiency paradox
+`TotalCompute(t) = Tasks(t) * ComputePerTask(t)`
+
+Efficiency per task can improve while total compute demand rises if task volume, context, reasoning depth, multimodal work and agent loops grow faster.
+
+## 3. Structural system architecture
+1. **Software demand:** contracts, API spend, users, queries, tokens, context, model mix, agent loops.
+2. **Compute:** model architecture, throughput/goodput, latency SLA, batching, utilization, spare capacity.
+3. **BOM:** accelerators, HBM, host DRAM, NAND/SSD, wafers, advanced packaging, networking/optics, power/cooling.
+4. **Supply:** fab capacity, yields, inventories, lead times, qualification, supplier share, substitution.
+5. **Financials:** component units/ASP/share/fill rate -&gt; revenue/margin/EPS.
+6. **Expectations:** point-in-time consensus, analyst revisions, reverse DCF, price-implied assumptions.
+7. **Narrative/regime:** material news, rates, oil, breadth, VWAP, positioning.
+
+## 4. Contract/commitment and workload backsolvers
+Use two independent routes and compare them.
+
+### 4.1 Dollar route
+`AccelHours = ComputeSpend / EffectiveCostPerAccelHour`
+
+`InstalledAccel = PeakRequiredAccel / TargetUtilization`
+
+Critical adjustments: software/cloud margin, utilization, goodput, existing spare capacity, peak/SLA reserve and hardware generation mix.
+
+### 4.2 Workload route
+`TokenDemand = Users * QueriesPerUser * TokensPerQuery * AgentAmplification`
+
+Translate workload to compute using explicit model/hardware assumptions. Do not assume a universal FLOPs/token formula across dense, MoE, quantized and speculative-decoding systems.
+
+`EffectiveThroughput = PeakThroughput * Efficiency * Goodput`
+
+## 5. BOM translation
+At minimum model:
+
+- accelerator units by generation;
+- HBM GB per accelerator;
+- host DRAM GB/TB;
+- NAND/SSD TB for raw/processed corpus, checkpoints, replicas, embeddings/vector stores, synthetic data, logs, persistent KV cache and scratch;
+- foundry wafers from die area/node/yield;
+- advanced packaging/interposer units;
+- NICs, switches and optical transceivers;
+- rack kW and site MW.
+
+Core equations:
+
+`HBM_GB = Accelerators * HBM_GB_PerAccelerator`
+
+`SupplierRevenue(j) = ComponentUnits * ASP(j) * SupplierShare(j) * FillRate(j)`
+
+## 6. Supply, scarcity and pricing
+`Tightness(c,t) = (Demand(c,t) - EffectiveSupply(c,t)) / max(EffectiveSupply(c,t), epsilon)`
+
+Effective supply adjusts nominal capacity for yield, downtime, qualification and mix. For memory, keep physical bit/unit demand separate from ASP/cycle effects.
+
+`ASP(c,t) = PriceModel(Scarcity, InventoryDays, ContractReset, Mix, CycleState)`
+
+## 7. Supplier earnings and expectations
+`EPSGap(i,t) = E_BOMX[EPS(i,t+h)] - ConsensusEPS(i,t,h)`
+
+Reverse DCF should solve for physical assumptions required by price, such as accelerator units, memory content, ASP, market share, gross margin and capex duration.
+
+## 8. Rates/bonds and capex-duration overlay
+Track nominal 10Y, real yields, 2Y, curve slope, IG spreads and relevant AI-related issuance. Separate:
+
+1. direct project/debt sensitivity;
+2. hyperscaler hurdle-rate sensitivity;
+3. semiconductor second-order customer-capex sensitivity;
+4. software valuation-duration sensitivity.
+
+Oil is an event input when it changes inflation/rate expectations.
+
+## 9. Narrative/event engine
+The narrative engine is conditional and independently disableable.
+
+### 9.1 AI-day filter
+Require at least 2 of 3:
+- shared AI/semiconductor catalyst;
+- unusual AI-basket participation;
+- unusual sector-relative movement.
+
+### 9.2 Four states
+- **Negative exhaustion:** bad narrative repeated, no new fundamental deterioration, tape/macro stabilizes.
+- **Positive exhaustion:** good narrative crowded, participation deteriorates, early rally fades.
+- **Fundamental repricing:** new information materially changes earnings/capex/technology/regulation.
+- **No signal:** mixed/low-materiality information.
+
+### 9.3 Monday hypothesis
+Research workflow, not a hard rule:
+- pre-open: overnight range, 10Y, crude, major AI headlines;
+- 09:30-09:50 ET: form opening range; do not knife-catch;
+- 09:50-10:45 ET: look for macro stabilization + VWAP reclaim + higher low + improving breadth;
+- invalidate on morning-low break with fresh yield/oil highs or new fundamental deterioration.
+
+### 9.4 Friday hypothesis
+Test separately whether strong early Friday AI moves fade when incremental information is absent, breadth narrows, positioning is crowded or investors de-risk into the weekend. The model must be able to reject this hypothesis.
+
+### 9.5 Regulation/security materiality
+Treat an event as material only when it plausibly changes compute/chip access, model release/deployment cadence, enterprise adoption economics, liability/compliance, exportability, compute supply, or meaningful security/reliability assumptions.
+
+## 10. Horizon separation
+Use separate targets/models:
+
+- `f1(X) -&gt; residual return 1-5d`
+- `f2(X) -&gt; residual return 20d`
+- `f3(X) -&gt; residual return 60d`
+- `f4(X) -&gt; next-quarter EPS revision`
+
+The narrative module must not rewrite a quarterly physical-demand forecast unless an event passes a structural materiality threshold.
+
+## 11. State models
+Structural state:
+
+`z(t) = [D(t), K(t), B(t), E(t), M(t)]`
+
+- D = physical demand
+- K = effective productive capacity
+- B = bottleneck/scarcity
+- E = supplier earnings distribution implied by the physical system
+- M = market-implied expectations
+
+Event state:
+
+`q(t) = [R(t), O(t), N(t), P(t), L(t)]`
+
+- R = rates/credit financing regime
+- O = oil/inflation impulse
+- N = AI narrative/material-news state
+- P = participation/breadth/leadership
+- L = liquidity/positioning/exhaustion
+
+## 12. Canonical data records
+Time-version and provenance-tag: Event, Entity, Component, Platform, BOMEdge, CapacityState, FinancialSnapshot, ConsensusSnapshot, MarketState and ResearchOutput.
+
+Every derived output must retain `as_of_timestamp`, source IDs, model version, assumption set, confidence/uncertainty and calculation trace.
+
+## 13. Software architecture
+Core packages: `ingest`, `normalize`, `graph`, `workloads`, `compute`, `bom`, `supply`, `financials`, `expectations`, `macro`, `narrative`, `signals`, `backtest`, `portfolio`, `api`, `dashboard`, `research`, `tests`.
+
+Recommended MVP persistence: DuckDB + Parquet. Add PostgreSQL only when multi-user/streaming needs justify it.
+
+## 14. First production experiment
+**AI commitment -&gt; component demand -&gt; supplier EPS -&gt; underreaction**
+
+1. Start with NVDA/AMD/custom ASIC platforms; MU and SNDK for memory/storage; AVGO/networking; selected foundry/packaging exposures where public data are adequate.
+2. Collect timestamped AI commitment, capex and usage events.
+3. Run dollars-to-compute and workload-to-compute backsolvers.
+4. Translate compute into accelerator/HBM/DRAM/NAND/networking/power distributions.
+5. Run supplier share, fill-rate, ASP and margin scenarios into EPS.
+6. Snapshot point-in-time consensus and price response.
+7. Test residual EPS gap against 5d/20d/60d abnormal returns and next-quarter revisions.
+8. Add learned BOM coefficients, state-space filters and GNNs only after the baseline works.
+
+### Synthetic $100M test case
+Illustrative medians only:
+- $100M annual commitment
+- 50% compute-cost share -&gt; $50M compute cost
+- $4/effective accelerator-hour -&gt; 12.5M accelerator-hours
+- 8,760 hours -&gt; about 1,427 continuously utilized accelerator equivalents
+- 60% target utilization -&gt; about 2,378 installed accelerators
+- 192 GB HBM/accelerator -&gt; about 456 TB installed HBM
+
+The production engine must use distributions, cross-check the token/workload route, and subtract usable spare capacity.
+
+## 15. Backtesting and governance
+- Exact publication and ingestion timestamps.
+- Point-in-time consensus and revisions.
+- Time-valid supplier/customer/BOM relationships.
+- Delistings/corporate actions and realistic frictions.
+- Data-latency enforcement.
+- Walk-forward testing with purging/embargo; no random split for core trading evaluation.
+
+Benchmark ladder:
+0. market/sector beta
+1. price momentum + analyst revisions
+2. linear customer-supplier propagation
+3. state-space/Kalman
+4. gradient boosting
+5. GNN/temporal GNN
+6. RL only if it beats simpler models after costs/stability checks
+
+## 16. Portfolio/risk layer
+Baseline objective:
+
+`MVP portfolio layer: validate signal net of costs first. Tail/CVaR optimization is deferred until the event sample is large enough to estimate tails credibly.`
+
+Risk controls: market beta, rates, energy, semiconductor beta, sector exposure, liquidity, borrow, single-name/event concentration and option Greeks. Stress AI capex slowdown, memory oversupply, higher-for-longer rates and trade/export restrictions.
+
+## 17. Product surfaces
+- Morning AI Tape
+- Demand Backsolver
+- BOM Waterfall
+- Supplier Card
+- Memory Cycle
+- Event Inspector
+- Backtest Lab
+
+## 18. Acceptance criteria
+The MVP must produce a reproducible event -&gt; workload -&gt; compute -&gt; BOM -&gt; supply -&gt; financials -&gt; consensus-gap output; expose uncertainty and provenance; prevent look-ahead; keep Monday/Friday logic independently disableable; and run locally with tests and synthetic fixtures when paid/API data are unavailable.
+
+## 19. Prior work consolidated
+This design consolidates:
+- the SRS-X physical-demand/expectations framework;
+- the AI Monday Reversal Thesis/Playbook and rates/oil confirmation logic;
+- the software-to-chip demand thread on token/workload backsolving and memory/storage intensity;
+- the mapped public research families: SemiAnalysis, Epoch AI, TrendForce, Counterpoint, Goldman token-demand research and LightCounting.
+
+## 20. What BOM-X is not
+- not a claim that Monday always reverses or Friday always fades;
+- not a direct-price black box before the physical pathway is understood;
+- not “AI capex up = buy chips”;
+- not a system that treats every AI tweet as material;
+- not a substitute for point-in-time source validation or engineering/BOM diligence.
+</pre></div></details>
+  <details><summary>Codex implementation prompt</summary><div><pre class="docs"># CODEX BUILD PROMPT — AI/SEMI BOM-X RESEARCH ENGINE
+
+You are acting as a principal quantitative research engineer, semiconductor supply-chain analyst, AI-infrastructure economist, and production Python architect.
+
+Build a robust, auditable research engine named **BOM-X**.
+
+The engine&#x27;s purpose is NOT to directly predict stock prices from opaque features. Its first task is to explain and quantify the causal economic chain:
+
+**AI software demand -&gt; workload -&gt; compute -&gt; accelerator/rack capacity -&gt; semiconductor/infrastructure BOM -&gt; constrained supply -&gt; supplier revenue/EPS -&gt; point-in-time expectations -&gt; research signal.**
+
+A separate short-horizon module must classify material AI narratives and macro regimes for event studies (including the Monday reversal / Friday fade hypotheses), but that module must remain isolated from the structural quarterly demand engine unless a material event changes the structural prior.
+
+Use the accompanying product specification `AI_SEMI_BOM_X_Product_Spec.md` as the authoritative functional design. If it conflicts with this prompt, follow the product specification unless doing so would make the code incorrect or non-reproducible.
+
+---
+
+## 1. Non-negotiable engineering requirements
+
+1. Use **Python 3.12+**.
+2. The repository must run locally from a clean checkout.
+3. Use `uv` or Poetry for dependency management; prefer `uv` unless there is a strong reason not to.
+4. Use type hints everywhere meaningful and `pydantic` models for external/internal record validation.
+5. Use **DuckDB + Parquet** as the default local research store. Architect storage behind repositories/interfaces so PostgreSQL can be added later.
+6. Use `pytest`, `ruff`, `mypy` (or pyright), and pre-commit configuration.
+7. All time series and events must be timezone-aware. Normalize storage timestamps to UTC and preserve original source timestamps/time zones.
+8. Every derived research output must include:
+   - `as_of_timestamp`
+   - `source_ids`
+   - `model_version`
+   - `assumption_set_id`
+   - `confidence` or uncertainty representation
+   - `calculation_trace_id`
+9. Never silently impute a critical BOM, price, utilization, supplier-share or capacity input. Missing critical data must either:
+   - use an explicitly named prior/distribution, or
+   - fail with an actionable validation error.
+10. No API key or paid dataset may be required for the test suite or demo. Implement source interfaces and deterministic fixtures/mocks.
+11. No look-ahead leakage. Historical records and graph edges must be time-valid with `valid_from` and `valid_to` fields.
+12. Favor interpretable baselines. Do not add RL, GNNs, LLM agents, or complex deep learning until the baseline engine and benchmark tests exist.
+13. Define every mathematical variable in docstrings/docs when first used.
+14. Keep model logic out of dashboards and notebooks. Core logic belongs in importable, tested modules.
+15. Do not invent market data. Synthetic demo data must be clearly marked `synthetic=true`.
+
+---
+
+## 2. Repository to create
+
+Create this structure (modify only if a clearly better organization is justified in an ADR):
+
+```text
+bom-x/
+  pyproject.toml
+  README.md
+  Makefile
+  .env.example
+  .gitignore
+  .pre-commit-config.yaml
+  configs/
+    base.yaml
+    scenarios/
+      ai_contract_demo.yaml
+      memory_tight.yaml
+      memory_oversupply.yaml
+      rates_higher_for_longer.yaml
+  data/
+    README.md
+    fixtures/
+  docs/
+    architecture.md
+    data_dictionary.md
+    methodology.md
+    leakage_policy.md
+    model_governance.md
+    adr/
+  notebooks/
+    01_contract_to_bom_demo.ipynb
+    02_memory_supplier_eps_demo.ipynb
+    03_event_regime_study.ipynb
+  src/bomx/
+    __init__.py
+    cli.py
+    config.py
+    logging.py
+    provenance.py
+    schemas/
+      base.py
+      entities.py
+      events.py
+      platforms.py
+      bom.py
+      capacity.py
+      financials.py
+      consensus.py
+      market.py
+      outputs.py
+    storage/
+      duckdb.py
+      repositories.py
+      migrations.py
+    ingest/
+      base.py
+      sec.py
+      company_ir.py
+      model_provider.py
+      macro.py
+      market.py
+      industry.py
+      fixtures.py
+    normalize/
+      entities.py
+      units.py
+      timestamps.py
+      currencies.py
+    graph/
+      model.py
+      point_in_time.py
+      propagation.py
+    workloads/
+      contract_backsolver.py
+      token_model.py
+      agent_model.py
+      training_model.py
+    compute/
+      throughput.py
+      goodput.py
+      utilization.py
+      capacity.py
+      hardware_registry.py
+    bom/
+      registry.py
+      translator.py
+      wafers.py
+      memory.py
+      networking.py
+      power.py
+    supply/
+      capacity.py
+      yields.py
+      inventory.py
+      fill_rate.py
+      scarcity.py
+      pricing.py
+    financials/
+      supplier_bridge.py
+      income_statement.py
+      eps.py
+      scenarios.py
+    expectations/
+      consensus.py
+      revisions.py
+      reverse_dcf.py
+    macro/
+      rates.py
+      financing.py
+    narrative/
+      materiality.py
+      ai_day.py
+      regime.py
+      monday.py
+      friday.py
+      regulation_security.py
+    signals/
+      structural.py
+      event.py
+      horizons.py
+      composite.py
+    backtest/
+      clock.py
+      event_study.py
+      walk_forward.py
+      costs.py
+      factors.py
+      metrics.py
+      leakage.py
+    portfolio/
+      optimizer.py
+      constraints.py
+      scenarios.py
+    api/
+      app.py
+      routes.py
+    dashboard/
+      app.py
+      pages/
+    research/
+      trace.py
+      reports.py
+  tests/
+    unit/
+    integration/
+    regression/
+    leakage/
+  scripts/
+    seed_demo_data.py
+    run_demo.py```
+
+---
+
+## 3. Canonical schemas
+
+Implement strongly typed Pydantic models and matching DuckDB tables for at least:
+
+### Event
+- event_id
+- event_timestamp
+- source_timestamp
+- ingestion_timestamp
+- entity_id
+- event_type
+- quantity
+- unit
+- currency
+- confidence
+- materiality
+- source_id
+- source_url
+- scenario_tags
+- synthetic
+
+### Entity
+- entity_id
+- canonical_name
+- entity_type
+- ticker
+- exchange
+- geography
+- parent_entity_id
+- aliases
+- valid_from
+- valid_to
+
+### Platform
+- platform_id
+- provider
+- accelerator_model
+- server_or_rack_model
+- release_date
+- customer_type
+- valid_from
+- valid_to
+
+### BOMEdge
+- edge_id
+- platform_id
+- component_id
+- units_per_output
+- unit
+- supplier_id (nullable when industry-level)
+- supplier_share distribution/parameters
+- substitutability
+- lead_time_days
+- qualification_risk
+- confidence
+- valid_from
+- valid_to
+- source_ids
+
+### CapacityState
+- supplier_id
+- site_id
+- component_id
+- date
+- nominal_capacity
+- effective_capacity
+- yield_rate
+- utilization
+- inventory_units
+- qualification_factor
+- source_ids
+
+### ConsensusSnapshot
+- company_id
+- metric
+- fiscal_period
+- estimate
+- dispersion
+- analyst_count
+- timestamp
+- source_id
+
+### MarketState
+- timestamp
+- ticker
+- open/high/low/close/volume
+- vwap
+- market/sector/factor returns
+- rates fields
+- oil fields
+- credit fields
+
+### ResearchOutput
+- output_id
+- as_of_timestamp
+- entity/company/security
+- horizon
+- metric
+- expected_value
+- distribution parameters or quantiles
+- confidence
+- model_version
+- assumption_set_id
+- calculation_trace_id
+- source_ids
+
+Add migrations or deterministic table-creation logic.
+
+---
+
+## 4. Structural engine: implement baseline first
+
+### 4.1 Contract-dollar backsolver
+Implement:
+
+`accelerator_hours = compute_spend / effective_cost_per_accelerator_hour`
+
+where:
+- `compute_spend` is the share of commercial contract value economically attributable to compute;
+- `effective_cost_per_accelerator_hour` is all-in cost per useful accelerator-hour.
+
+Then estimate installed accelerators using:
+
+`installed_accelerators = peak_required_accelerators / target_utilization`
+
+Do NOT assume 100% utilization.
+
+Inputs must support distributions (start with triangular, normal/lognormal where appropriate, and discrete scenarios). Return Monte Carlo quantiles and a trace of assumptions.
+
+### 4.2 Workload/token backsolver
+Implement a parallel route:
+
+`token_demand = users * queries_per_user * tokens_per_query * agent_amplification`
+
+Break input/output/reasoning tokens into separate fields where possible.
+
+Create an extensible interface:
+
+```python
+class WorkloadModel(Protocol):
+    def estimate_compute(self, workload: WorkloadSpec, hardware: HardwareSpec) -&gt; ComputeDistribution: ...
+```
+
+The baseline may use explicit effective FLOPs/token or empirical tokens/sec parameters. Document limitations. Do not pretend one FLOPs/token formula is universal across dense/MoE, quantized or speculative-decoding systems.
+
+### 4.3 Throughput/goodput
+Represent:
+
+`effective_throughput = peak_throughput * efficiency * goodput`
+
+with explicit definitions:
+- peak_throughput: theoretical hardware throughput;
+- efficiency: achieved fraction after software/kernel/model limitations;
+- goodput: useful completed work after failures/retries/latency overhead.
+
+### 4.4 Spare-capacity adjustment
+Incremental demand is not automatically incremental hardware.
+
+Implement:
+
+`incremental_hardware = max(0, required_capacity - existing_spare_capacity)`
+
+but allow reliability/SLA reserve requirements that prevent full use of nominal spare capacity.
+
+---
+
+## 5. BOM engine
+
+Create a time-versioned hardware/BOM registry.
+
+At minimum support:
+- accelerator units
+- HBM GB
+- host DRAM GB
+- NAND/SSD TB
+- advanced packaging units
+- foundry wafer starts
+- networking NICs/switch ports/optical transceivers
+- power MW / rack kW
+
+Core equations:
+
+`component_demand(c,t) = sum_p units(p,t) * content(c,p,t)`
+
+`HBM_GB = accelerators * HBM_GB_per_accelerator`
+
+For wafers, model die area, wafer usable area, gross dies/wafer approximation and yield. Clearly label simplifications.
+
+For NAND, do NOT reduce demand to raw training-dataset size. Include configurable drivers for:
+- raw/processed corpus
+- checkpoints
+- experiment outputs
+- replicas
+- embeddings/vector stores
+- synthetic data
+- logs
+- persistent KV cache
+- scratch/local SSD
+
+For memory/storage hierarchy, model HBM, DRAM and NAND separately. Allow workload-specific offload assumptions.
+
+---
+
+## 6. Supply/scarcity/ASP engine
+
+Implement:
+
+`scarcity = demand / effective_supply`
+
+where effective supply adjusts nominal capacity for yield, downtime, qualification and product mix.
+
+Baseline price model should be interpretable. Start with a monotonic piecewise or regression-style function using:
+- scarcity
+- inventory days
+- contract reset cadence
+- product mix
+- cycle state
+
+Do NOT hard-code a magical nonlinear function. Put coefficients in configuration, document them, and provide sensitivity plots/data.
+
+Return both:
+- physical unit/bit demand; and
+- price/ASP effect.
+
+This separation is mandatory for memory-cycle analysis.
+
+---
+
+## 7. Supplier financial bridge
+
+Implement a transparent supplier bridge:
+
+`supplier_revenue = component_units * ASP * supplier_share * fill_rate`
+
+Then map revenue into gross profit, operating income and EPS with configurable company financial parameters.
+
+Support scenario distributions for:
+- supplier share
+- fill rate
+- ASP
+- gross margin
+- opex
+- tax
+- diluted shares
+
+The first demo must produce Micron-like and Sandisk-like example outputs using synthetic/public placeholder parameters clearly marked as such. Do not claim those demo parameters are current facts.
+
+---
+
+## 8. Expectations engine
+
+### 8.1 Consensus gap
+Implement:
+
+`eps_gap = bomx_expected_eps - point_in_time_consensus_eps`
+
+Store consensus snapshots as immutable point-in-time records.
+
+### 8.2 Reverse DCF
+Create a basic reverse-DCF solver capable of solving for one or more price-implied physical assumptions, for example:
+- accelerator units
+- memory content/unit
+- ASP
+- market share
+- gross margin
+- capex duration
+
+The solver must clearly separate accounting/valuation assumptions from physical assumptions.
+
+### 8.3 Revision propagation
+For an event at time t, compute:
+- modeled supplier EPS delta;
+- actual consensus change over windows (e.g. 1d/5d/20d);
+- residual unincorporated gap.
+
+This residual is the primary research variable for the first production experiment.
+
+---
+
+## 9. Rates and financing overlay
+
+Implement macro state objects for:
+- 2Y Treasury
+- 10Y Treasury
+- real yields when available
+- curve slope
+- IG credit spread
+- optional oil/energy impulse
+
+Create a financing-sensitivity configuration by company/category. Separate:
+1. direct project/debt sensitivity;
+2. hyperscaler hurdle-rate sensitivity;
+3. semiconductor second-order customer-capex sensitivity;
+4. pure valuation-duration sensitivity.
+
+Do not assume a single rate beta is causal for every company.
+
+---
+
+## 10. Narrative/event engine
+
+This is a separate package. It must be possible to disable it completely without affecting structural outputs.
+
+### 10.1 Materiality classifier
+Create deterministic baseline rules before ML.
+
+A regulation/security/news event is material if it plausibly changes at least one of:
+- legal access to compute/chips/equipment;
+- model deployment/release cadence;
+- enterprise adoption economics;
+- liability/compliance cost;
+- exportability/geographic availability;
+- compute supply;
+- significant security/reliability assumptions.
+
+Low-impact tweets/social chatter should default to low materiality unless corroborated by a primary/reliable source or unusual multi-asset price action.
+
+### 10.2 AI-day filter
+Flag an AI-dominated session only when at least 2 of 3 are true:
+1. shared AI/semiconductor catalyst;
+2. unusual basket participation;
+3. unusual sector-relative movement.
+
+### 10.3 Four regimes
+Implement enum/state probabilities for:
+- NEGATIVE_EXHAUSTION
+- POSITIVE_EXHAUSTION
+- FUNDAMENTAL_REPRICING
+- NO_SIGNAL
+
+### 10.4 Monday hypothesis
+Encode the research workflow, not a hard trading rule:
+- pre-open overnight range, 10Y, crude, QQQ/SMH/NVDA;
+- 09:30-09:50 ET opening range: do not knife-catch;
+- 09:50-10:45 ET confirmation: macro stabilization + VWAP reclaim + higher low + improving breadth;
+- invalidation: morning-low break with fresh yield/oil highs or new fundamental deterioration.
+
+The module must produce an event-study score and test results. It must NOT output “buy because Monday.”
+
+### 10.5 Friday hypothesis
+Test separately whether strong AI-led early Friday moves fade when:
+- no incremental information arrives;
+- breadth narrows;
+- positioning is crowded;
+- investors de-risk into weekend.
+
+Do not assume this effect exists. The backtest should be capable of rejecting it.
+
+---
+
+## 11. Horizon-specific signal layer
+
+Create separate outputs/models for:
+- 1-5 trading-day residual return;
+- 20-day residual return;
+- 60-day residual return;
+- next-quarter EPS revision.
+
+Do not use one universal target.
+
+Initial structural features should include:
+- physical demand surprise;
+- EPS gap;
+- consensus revision gap;
+- capacity/scarcity change;
+- ASP-cycle state;
+- reverse-DCF expectation gap;
+- customer-to-supplier propagation residual.
+
+Initial event features should include:
+- event materiality;
+- AI-day score;
+- rates/oil change;
+- breadth/participation;
+- VWAP/opening-range state;
+- overnight gap;
+- event corroboration count.
+
+Keep raw price momentum/revisions as benchmark features.
+
+---
+
+## 12. Backtesting and leakage policy
+
+Implement a strict point-in-time research clock.
+
+Requirements:
+- publication timestamp and ingestion timestamp;
+- point-in-time graph edges/BOM versions;
+- point-in-time consensus;
+- corporate actions/delistings in historical universe;
+- realistic costs and slippage hooks;
+- data latency enforcement;
+- purging/embargo for overlapping labels;
+- walk-forward evaluation only for the main research results.
+
+Benchmark ladder:
+0. sector/market beta
+1. price momentum + analyst revisions
+2. linear customer-supplier propagation
+3. state-space/Kalman baseline
+4. gradient boosting
+5. GNN/temporal GNN only after baseline passes
+6. RL only if separately approved and demonstrably additive after costs
+
+Metrics:
+- IC/rank IC
+- EPS/revenue RMSE
+- calibration/Brier score
+- Sharpe/Sortino
+- max drawdown
+- hit rate
+- turnover
+- capacity
+- tail loss
+- economic attribution stability
+
+Write explicit leakage tests. Example: inserting a supplier relationship with `valid_from=2026-01-01` must never affect a 2025 backtest.
+
+---
+
+## 13. Portfolio layer
+
+Baseline objective:
+
+`MVP: simple exposure-constrained sizing + turnover/cost control. CVaR is deferred until independent-event sample size supports tail estimation.`
+
+Define all variables in code/docs.
+
+Support constraints for:
+- dollar neutrality
+- market beta
+- semiconductor beta
+- rates exposure
+- energy exposure
+- sector exposure
+- liquidity
+- borrow
+- single-name limit
+- event concentration
+
+Scenario stress:
+- AI capex slowdown
+- memory oversupply
+- rates higher for longer
+- export/trade restrictions
+
+Do not make portfolio optimization a prerequisite for validating the research signals.
+
+---
+
+## 14. Research dashboard / API
+
+Build a minimal FastAPI API and lightweight Streamlit dashboard after core logic/tests are stable.
+
+Pages:
+1. **Morning AI Tape**: AI-day score; material overnight events; 10Y/real-yield/oil; QQQ/SMH/NVDA and breadth; Monday/Friday regime state.
+2. **Demand Backsolver**: select an event -&gt; inspect contract/workload assumptions -&gt; accelerator-hour distribution -&gt; installed accelerators.
+3. **BOM Waterfall**: accelerators -&gt; HBM/DRAM/NAND/wafers/packaging/networking/power with P10/P50/P90.
+4. **Supplier Card**: exposure, capacity/fill rate, revenue/EPS delta, consensus gap, reverse-DCF gap.
+5. **Memory Cycle**: bit demand, effective supply, inventory, ASP scenario, supplier sensitivity.
+6. **Event Inspector**: event source/materiality, graph propagation path, structural vs narrative classification.
+7. **Backtest Lab**: walk-forward metrics, costs, benchmarks, attribution.
+
+Every displayed number must expose a calculation trace / provenance view.
+
+---
+
+## 15. CLI commands
+
+Implement useful commands, for example:
+
+```bash
+bomx init-db
+bomx seed-demo
+bomx validate-data
+bomx run-contract --scenario configs/scenarios/ai_contract_demo.yaml
+bomx run-bom --platform &lt;platform_id&gt;
+bomx run-supplier --company &lt;ticker&gt; --as-of &lt;timestamp&gt;
+bomx event-study --strategy monday_reversal --start 2024-01-01 --end 2026-09-23
+bomx backtest --signal eps_gap_20d --config configs/base.yaml
+bomx serve-api
+bomx dashboard
+```
+
+Exact syntax can change, but the workflow must remain scriptable and reproducible.
+
+---
+
+## 16. Tests to write before calling the MVP complete
+
+At minimum:
+
+### Unit
+- contract dollars -&gt; accelerator-hours arithmetic
+- utilization/spare-capacity adjustment
+- token workload arithmetic
+- BOM translation
+- HBM/DRAM/NAND separation
+- wafer/yield calculation
+- scarcity calculation
+- supplier revenue/EPS bridge
+- consensus gap
+- materiality rules
+- Monday regime state transitions
+
+### Property tests
+- more accelerators cannot reduce HBM demand holding BOM constant;
+- lower fill rate cannot increase supplier units sold holding all else constant;
+- higher spare capacity cannot increase incremental installed hardware holding demand constant;
+- time-invalid BOM edge cannot affect output outside its validity interval.
+
+### Leakage tests
+- future consensus snapshots inaccessible to earlier as-of clock;
+- future supplier edges inaccessible;
+- source published after decision timestamp inaccessible.
+
+### Regression
+Freeze one synthetic $100M AI-contract scenario and assert deterministic P10/P50/P90 outputs within tolerance.
+
+### Integration
+End-to-end:
+`Event -&gt; Workload -&gt; Compute -&gt; BOM -&gt; Supply -&gt; Financials -&gt; ConsensusGap -&gt; ResearchOutput`
+
+---
+
+## 17. Demo scenario
+
+Seed a clearly synthetic example:
+- $100M annual AI commitment
+- compute-cost share distribution centered near 50%
+- effective accelerator-hour cost distribution centered near $4/hour
+- target utilization distribution centered near 60%
+- HBM content example centered near 192 GB/accelerator
+
+The expected arithmetic around the medians is approximately:
+- $50M compute cost
+- 12.5M accelerator-hours
+- 1,427 continuously utilized accelerator equivalents
+- 2,378 installed accelerators at 60% utilization
+- ~456 TB installed HBM at 192 GB each
+
+These are test numbers only. Mark them as synthetic assumptions everywhere.
+
+Also create a second scenario where existing spare capacity absorbs part of the workload so incremental hardware is lower. The contrast should demonstrate why software contract value does not equal hardware purchase value.
+
+---
+
+## 18. Development sequence
+
+Work in this order and commit coherent milestones:
+
+1. Scaffold repo + tooling + schemas + storage + fixtures.
+2. Provenance/as-of research clock.
+3. Contract/workload backsolvers.
+4. Hardware registry + BOM translation.
+5. Supply/scarcity/ASP baseline.
+6. Supplier financial bridge.
+7. Consensus/reverse-DCF baseline.
+8. End-to-end synthetic demo + calculation trace.
+9. Backtest/event-study infrastructure.
+10. Narrative/rates modules.
+11. API/dashboard.
+12. Optional advanced models only after benchmark evaluation.
+
+At each stage:
+- run tests;
+- run lint/type checks;
+- update README/methodology;
+- record an ADR for material architecture changes.
+
+---
+
+## 19. Definition of done for v0.1
+
+v0.1 is complete only when a clean checkout can:
+
+1. install with one documented command;
+2. seed synthetic demo data;
+3. ingest/validate time-versioned schemas;
+4. run the $100M contract through the full structural pipeline;
+5. print and persist P10/P50/P90 accelerator, HBM, DRAM, NAND and supplier EPS outputs;
+6. compute a point-in-time consensus gap from a synthetic consensus snapshot;
+7. display a complete calculation/provenance trace;
+8. run leakage tests and walk-forward event-study code on fixtures;
+9. launch a minimal dashboard showing the result;
+10. pass `pytest`, `ruff`, and type checking.
+
+Do not stop at skeleton files or TODO placeholders. Implement the smallest complete vertical slice first, then deepen it.
+
+---
+
+## 20. Coding style / research behavior
+
+- Prefer small pure functions for financial/physical transformations.
+- Use dataclasses/Pydantic models rather than unstructured dicts.
+- Preserve units explicitly. Consider `pint` if it improves safety without excessive complexity.
+- Log assumptions at INFO and model internals at DEBUG; never log secrets.
+- Avoid global mutable state.
+- Seed Monte Carlo RNGs through configuration for reproducibility.
+- Use vectorized NumPy where appropriate, but keep formulas readable.
+- Every model should have a `describe()` or trace output explaining its assumptions.
+- Add docstrings with the economic interpretation, not just parameter types.
+- If a requested advanced feature is not justified yet, create a clean interface and document why it is deferred instead of faking sophistication.
+
+Start now by creating the repository scaffold, schemas, storage, provenance clock, and the first end-to-end synthetic contract-to-BOM-to-EPS vertical slice. Run the tests and fix failures before proceeding to the dashboard or advanced models.
+</pre></div></details>
+</section>
+<footer>BOM-X prototype v0.3 · Research / educational use. Scenario outputs are assumption-sensitive and are not investment recommendations. Source links are preserved so every event can be audited.</footer>
+</main></div>
+<script>
+const EVENTS=[{"date": "2023-09-25", "entity": "Amazon / Anthropic", "event_type": "cloud_partnership", "headline": "Amazon commits up to $4B to Anthropic; AWS becomes primary cloud provider", "quantity": 4, "unit": "USD_bn", "compute_relevance": "Trainium/Inferentia collaboration and long-term AWS workload commitment", "source_url": "https://www.aboutamazon.com/news/company-news/amazon-aws-anthropic-ai", "source_name": "Amazon", "confidence": 0.95}, {"date": "2024-11-22", "entity": "Amazon / Anthropic", "event_type": "cloud_partnership", "headline": "Amazon adds $4B investment; AWS becomes primary cloud and training partner", "quantity": 4, "unit": "USD_bn", "compute_relevance": "Future Claude training tied to Trainium; Project Rainier announced", "source_url": "https://www.anthropic.com/news/anthropic-amazon-trainium", "source_name": "Anthropic", "confidence": 0.98}, {"date": "2025-01-03", "entity": "Microsoft", "event_type": "capex_plan", "headline": "Microsoft says FY2025 AI-enabled datacenter investment on track for about $80B", "quantity": 80, "unit": "USD_bn", "compute_relevance": "AI model training and deployment infrastructure", "source_url": "https://blogs.microsoft.com/on-the-issues/2025/01/03/the-golden-opportunity-for-american-ai/", "source_name": "Microsoft", "confidence": 0.99}, {"date": "2025-01-21", "entity": "OpenAI / Stargate", "event_type": "infrastructure_commitment", "headline": "Stargate announces $500B four-year U.S. AI infrastructure plan; $100B immediate deployment", "quantity": 500, "unit": "USD_bn", "compute_relevance": "Large-scale compute, networking, power and datacenter build", "source_url": "https://openai.com/index/announcing-the-stargate-project/", "source_name": "OpenAI", "confidence": 0.99}, {"date": "2025-01-29", "entity": "Meta", "event_type": "capex_guidance", "headline": "Meta guides 2025 capex to $60B-$65B", "quantity": 62.5, "unit": "USD_bn_midpoint", "compute_relevance": "Generative AI and core infrastructure", "source_url": "https://investor.atmeta.com/investor-news/press-release-details/2025/Meta-Reports-Fourth-Quarter-and-Full-Year-2024-Results/", "source_name": "Meta IR", "confidence": 0.99}, {"date": "2025-02-04", "entity": "Alphabet", "event_type": "capex_guidance", "headline": "Alphabet expects about $75B of 2025 capex", "quantity": 75, "unit": "USD_bn", "compute_relevance": "Technical infrastructure; AI and Cloud capacity", "source_url": "https://abc.xyz/investor/events/event-details/2025/2024-Q4-Earnings-Call/", "source_name": "Alphabet IR", "confidence": 0.99}, {"date": "2025-03-10", "entity": "OpenAI / CoreWeave", "event_type": "compute_contract", "headline": "OpenAI signs up to $11.9B CoreWeave compute agreement", "quantity": 11.9, "unit": "USD_bn", "compute_relevance": "Dedicated capacity for training and model services", "source_url": "https://coreweave.com/news/coreweave-announces-agreement-with-openai-to-deliver-ai-infrastructure", "source_name": "CoreWeave", "confidence": 0.99}, {"date": "2025-04-30", "entity": "Meta", "event_type": "capex_revision", "headline": "Meta raises 2025 capex range to $64B-$72B", "quantity": 68, "unit": "USD_bn_midpoint", "compute_relevance": "Additional datacenter investment for AI and higher infrastructure hardware costs", "source_url": "https://investor.atmeta.com/investor-news/press-release-details/2025/Meta-Reports-First-Quarter-2025-Results/", "source_name": "Meta IR", "confidence": 0.99}, {"date": "2025-05-01", "entity": "OpenAI / CoreWeave", "event_type": "compute_contract_revision", "headline": "OpenAI expands CoreWeave agreement by up to $4B", "quantity": 4, "unit": "USD_bn", "compute_relevance": "Incremental AI training/inference capacity", "source_url": "https://investors.coreweave.com/news/news-details/2025/CoreWeave-Expands-Agreement-with-OpenAI-by-up-to-6-5B/", "source_name": "CoreWeave IR (later release confirms May expansion)", "confidence": 0.9}, {"date": "2025-07-22", "entity": "OpenAI / Oracle", "event_type": "capacity_commitment", "headline": "OpenAI and Oracle add 4.5 GW of Stargate capacity; OpenAI says >5 GW under development will run >2M chips", "quantity": 4.5, "unit": "GW", "compute_relevance": "Direct physical capacity and chip-count anchor", "source_url": "https://openai.com/index/stargate-advances-with-partnership-with-oracle/", "source_name": "OpenAI", "confidence": 0.99}, {"date": "2025-07-23", "entity": "Alphabet", "event_type": "capex_revision", "headline": "Alphabet raises 2025 capex estimate from $75B to about $85B", "quantity": 85, "unit": "USD_bn", "compute_relevance": "Additional servers and accelerated datacenter construction for Cloud demand", "source_url": "https://abc.xyz/investor/events/event-details/2025/2025-Q2-Earnings-Call/", "source_name": "Alphabet IR", "confidence": 0.99}, {"date": "2025-07-30", "entity": "Meta", "event_type": "capex_revision", "headline": "Meta narrows 2025 capex guidance to $66B-$72B", "quantity": 69, "unit": "USD_bn_midpoint", "compute_relevance": "AI capacity build; management expects similarly significant dollar growth in 2026", "source_url": "https://investor.atmeta.com/investor-news/press-release-details/2025/Meta-Reports-Second-Quarter-2025-Results/", "source_name": "Meta IR", "confidence": 0.99}, {"date": "2025-09-22", "entity": "OpenAI / NVIDIA", "event_type": "accelerator_capacity_deal", "headline": "OpenAI and NVIDIA announce at least 10 GW of NVIDIA systems representing millions of GPUs", "quantity": 10, "unit": "GW", "compute_relevance": "First gigawatt planned on Vera Rubin in 2H 2026", "source_url": "https://openai.com/index/openai-nvidia-systems-partnership/", "source_name": "OpenAI / NVIDIA", "confidence": 0.99}, {"date": "2025-09-23", "entity": "OpenAI / Stargate", "event_type": "capacity_update", "headline": "Stargate reaches nearly 7 GW planned capacity and >$400B investment over three years", "quantity": 7, "unit": "GW", "compute_relevance": "Physical datacenter capacity update", "source_url": "https://openai.com/index/five-new-stargate-sites/", "source_name": "OpenAI", "confidence": 0.99}, {"date": "2025-09-25", "entity": "OpenAI / CoreWeave", "event_type": "compute_contract_revision", "headline": "OpenAI expands CoreWeave agreement by up to $6.5B; total commitments reach about $22.4B", "quantity": 6.5, "unit": "USD_bn", "compute_relevance": "Incremental next-generation training capacity", "source_url": "https://investors.coreweave.com/news/news-details/2025/CoreWeave-Expands-Agreement-with-OpenAI-by-up-to-6-5B/", "source_name": "CoreWeave IR", "confidence": 0.99}, {"date": "2025-09-30", "entity": "Meta / CoreWeave", "event_type": "compute_contract", "headline": "CoreWeave discloses up to ~$14.2B multi-year Meta deal", "quantity": 14.2, "unit": "USD_bn", "compute_relevance": "Dedicated next-generation AI workloads", "source_url": "https://investors.coreweave.com/financials/quarterly-results/", "source_name": "CoreWeave IR", "confidence": 0.95}, {"date": "2025-10-06", "entity": "OpenAI / AMD", "event_type": "accelerator_capacity_deal", "headline": "OpenAI agrees to deploy 6 GW of AMD GPUs; first 1 GW of MI450 in 2H 2026", "quantity": 6, "unit": "GW", "compute_relevance": "Multi-generation AMD Instinct deployment", "source_url": "https://openai.com/index/openai-amd-strategic-partnership/", "source_name": "OpenAI / AMD", "confidence": 0.99}, {"date": "2025-10-13", "entity": "OpenAI / Broadcom", "event_type": "custom_accelerator_deal", "headline": "OpenAI and Broadcom announce 10 GW custom accelerator and Ethernet systems collaboration", "quantity": 10, "unit": "GW", "compute_relevance": "Custom accelerators plus scale-up/scale-out networking", "source_url": "https://openai.com/index/openai-and-broadcom-announce-strategic-collaboration/", "source_name": "OpenAI / Broadcom", "confidence": 0.99}, {"date": "2025-10-23", "entity": "Anthropic / Google Cloud", "event_type": "tpu_capacity_deal", "headline": "Anthropic plans use of up to 1M Google TPUs, worth tens of billions, bringing well over 1 GW online in 2026", "quantity": 1, "unit": "million_TPUs", "compute_relevance": "TPU-driven Claude training/inference capacity", "source_url": "https://www.anthropic.com/news/expanding-our-use-of-google-cloud-tpus-and-services", "source_name": "Anthropic", "confidence": 0.99}, {"date": "2025-10-29", "entity": "Meta", "event_type": "capex_revision", "headline": "Meta raises 2025 capex range to $70B-$72B", "quantity": 71, "unit": "USD_bn_midpoint", "compute_relevance": "Continued AI infrastructure investment", "source_url": "https://investor.atmeta.com/investor-news/press-release-details/2025/Meta-Reports-Third-Quarter-2025-Results/", "source_name": "Meta IR", "confidence": 0.99}, {"date": "2025-11-03", "entity": "AWS / Anthropic", "event_type": "cluster_activation", "headline": "Project Rainier online with nearly 500k Trainium2 chips; expected to scale above 1M by year-end", "quantity": 0.5, "unit": "million_chips_initial", "compute_relevance": "Direct custom-accelerator count anchor", "source_url": "https://aws.amazon.com/blogs/aws/aws-weekly-roundup-project-rainier-online-amazon-nova-amazon-bedrock-and-more-november-3-2025/", "source_name": "AWS", "confidence": 0.98}, {"date": "2026-01-28", "entity": "Meta", "event_type": "capex_guidance", "headline": "Meta guides 2026 capex to $115B-$135B", "quantity": 125, "unit": "USD_bn_midpoint", "compute_relevance": "Meta Superintelligence Labs and core infrastructure", "source_url": "https://investor.atmeta.com/investor-news/press-release-details/2026/Meta-Reports-Fourth-Quarter-and-Full-Year-2025-Results/", "source_name": "Meta IR", "confidence": 0.99}, {"date": "2026-02-05", "entity": "Amazon", "event_type": "capex_guidance", "headline": "Amazon expects about $200B of 2026 capex amid AI, chips and AWS demand", "quantity": 200, "unit": "USD_bn", "compute_relevance": "Large AI infrastructure and custom-silicon build", "source_url": "https://www.aboutamazon.com/news/company-news/amazon-earnings-q4-2025-report", "source_name": "Amazon", "confidence": 0.99}, {"date": "2026-04-20", "entity": "Anthropic / AWS", "event_type": "compute_contract", "headline": "Anthropic commits >$100B over ten years to AWS, securing up to 5 GW of new compute", "quantity": 5, "unit": "GW", "compute_relevance": "Trainium2/3 capacity for Claude training and deployment", "source_url": "https://www.anthropic.com/news/anthropic-amazon-compute", "source_name": "Anthropic", "confidence": 0.99}, {"date": "2026-04-29", "entity": "OpenAI / Stargate", "event_type": "capacity_update", "headline": "OpenAI says Stargate has already surpassed its original 10 GW U.S. milestone", "quantity": 10, "unit": "GW_plus", "compute_relevance": "Large-scale AI compute supply expansion", "source_url": "https://openai.com/index/building-the-compute-infrastructure-for-the-intelligence-age/", "source_name": "OpenAI", "confidence": 0.98}]; const PLATFORMS=[{"id": "h100", "label": "NVIDIA H100 SXM", "hbm_gb": 80, "storage_tb_per_accel": 2.5, "power_kw": 0.7, "source": "NVIDIA H100 platform; storage ratio is BOM-X empirical prior anchored to xAI cluster storage, not an NVIDIA specification"}, {"id": "h200", "label": "NVIDIA H200", "hbm_gb": 141, "storage_tb_per_accel": 2.5, "power_kw": 0.7, "source": "NVIDIA H200 official: 141 GB HBM3e"}, {"id": "b200", "label": "NVIDIA B200 SXM", "hbm_gb": 180, "storage_tb_per_accel": 2.5, "power_kw": 1.0, "source": "NVIDIA Enterprise Reference Architecture: 180 GB HBM3e"}, {"id": "mi300x", "label": "AMD MI300X", "hbm_gb": 192, "storage_tb_per_accel": 2.5, "power_kw": 0.75, "source": "AMD official: 192 GB HBM3"}];
+let structural={}; let workload={}; let selectedEvent=null;
+const fmt=(x,d=2)=>Number(x).toLocaleString(undefined,{maximumFractionDigits:d});
+const moneyM=x=>'$'+fmt(x,2)+'M';
+
+function lcg(seed){let s=seed>>>0;return()=>{s=(1664525*s+1013904223)>>>0;return s/4294967296}}
+function runSensitivity(){
+  const specs=[
+    ['HBM ASP',7,13],['Supplier share',.18,.32],['Spare capacity',0,.35],['Incremental margin',.32,.38],
+    ['Compute share',.45,.60],['$/accel-hour',3.5,4.5],['Utilization',.55,.70],['Fill rate',.80,1.0],['HBM GB/accel',160,192],['Peak reserve',1.0,1.15]
+  ];
+  const N=4096,d=specs.length,rA=lcg(41),rB=lcg(991);
+  const A=Array.from({length:N},()=>Array.from({length:d},()=>rA()));
+  const B=Array.from({length:N},()=>Array.from({length:d},()=>rB()));
+  const scale=(u,j)=>specs[j][1]+u*(specs[j][2]-specs[j][1]);
+  const f=(row)=>{const z=row.map((u,j)=>scale(u,j));const asp=z[0],share=z[1],spare=z[2],margin=z[3],cshare=z[4],cost=z[5],util=z[6],fill=z[7],hbm=z[8],reserve=z[9];const installed=(100e6*cshare/cost/8760)*reserve/util*(1-spare);return installed*hbm*asp*share*fill*margin;};
+  const YA=A.map(f),YB=B.map(f),all=YA.concat(YB),mean=all.reduce((a,b)=>a+b,0)/all.length,V=all.reduce((a,b)=>a+(b-mean)**2,0)/(all.length-1);
+  const out=[];
+  for(let j=0;j<d;j++){let sum=0;for(let n=0;n<N;n++){const ab=A[n].slice();ab[j]=B[n][j];sum+=YB[n]*(f(ab)-YA[n]);}out.push({name:specs[j][0],s:Math.max(0,Math.min(1,sum/N/V))});}
+  out.sort((a,b)=>b.s-a.s);const total=out.reduce((a,b)=>a+b.s,0)||1;
+  document.getElementById('sensList').innerHTML=out.map((x,k)=>{const p=100*x.s/total;return `<div class="sens-row" role="button" tabindex="0" data-sens="${x.name}" data-pct="${p.toFixed(1)}"><span class="name">${x.name}</span><div class="sens-track"><div class="sens-fill" style="width:${Math.max(2,p)}%"></div></div><span class="pct">${p.toFixed(1)}%</span></div>`}).join(''); bindSensitivityRows();
+}
+
+function gotoTab(id){document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.id===id));window.scrollTo({top:0,behavior:'smooth'});} function initNav(){document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>gotoTab(b.dataset.tab))}
+function initPlatforms(){let s=document.getElementById('platform');PLATFORMS.forEach(p=>{let o=document.createElement('option');o.value=p.id;o.textContent=p.label+' — '+p.hbm_gb+' GB HBM';s.appendChild(o)});s.value='mi300x';s.onchange=calc;}
+function val(id){return Number(document.getElementById(id).value)}
+function calc(){
+ const p=PLATFORMS.find(x=>x.id===document.getElementById('platform').value)||PLATFORMS[0];
+ const commit=val('commit')*1e6, compute=commit*val('computeShare')/100, hours=compute/val('hourCost');
+ const continuous=hours/8760, installed=continuous*val('reserve')/(val('util')/100)*(1-val('spare')/100);
+ const hbmPB=installed*p.hbm_gb/1e6, nandPB=installed*val('storageTB')/1000, mw=installed*p.power_kw/1000;
+ structural={hours,continuous,installed,hbmPB,nandPB,mw};
+ document.getElementById('oHours').textContent=fmt(hours/1e6,2);document.getElementById('oContinuous').textContent=fmt(continuous,0);document.getElementById('oInstalled').textContent=fmt(installed,0);document.getElementById('oHBM').textContent=fmt(hbmPB,3);document.getElementById('oNAND').textContent=fmt(nandPB,2);document.getElementById('oMW').textContent=fmt(mw,2);document.getElementById('platformNote').textContent=p.source;
+ calcWorkload();calcSuppliers();updateDemandGraphics();calcFoundry();calcNetwork();calcPower();calcWfe();
+}
+function calcWorkload(){const users=val('usersM')*1e6,q=val('queries'),tok=val('tokens'),amp=val('agentAmp'),sec=val('gpuSec'),u=val('workUtil')/100;const annual=users*q*tok*amp*365;const gpuHours=annual/1000*sec/3600;const accels=gpuHours/8760/u;workload={annual,gpuHours,accels};document.getElementById('annualTokens').textContent=annual>=1e15?fmt(annual/1e15,2)+'Q':fmt(annual/1e12,2)+'T';document.getElementById('workAccels').textContent=fmt(accels,0);updateComparison();}
+function calcSuppliers(){if(!structural.hbmPB)return;const muRev=structural.hbmPB*1e6*val('hbmAsp')*(val('muShare')/100)/1e6;const muNI=muRev*val('muMargin')/100;const muEPS=muNI/val('muShares');const sRev=structural.nandPB*1000*val('nandAsp')*(val('sndkShare')/100)/1e6;const sNI=sRev*val('sndkMargin')/100;const sEPS=sNI/val('sndkShares');document.getElementById('muRev').textContent=moneyM(muRev);document.getElementById('muNI').textContent=moneyM(muNI);document.getElementById('muEPS').textContent='$'+fmt(muEPS,4);document.getElementById('sndkRev').textContent=moneyM(sRev);document.getElementById('sndkNI').textContent=moneyM(sNI);document.getElementById('sndkEPS').textContent='$'+fmt(sEPS,4);document.getElementById('epsGap').textContent='$'+fmt(muEPS,4)+' MU / $'+fmt(sEPS,4)+' SNDK';}
+function renderEvents(){const q=(document.getElementById('eventSearch').value||'').toLowerCase(),typ=document.getElementById('eventType').value;const rows=EVENTS.filter(e=>(!q||(e.entity+' '+e.headline).toLowerCase().includes(q))&&(!typ||e.event_type===typ));document.getElementById('eventBody').innerHTML=rows.map(e=>`<tr data-date="${e.date}" data-entity="${e.entity.replaceAll('\"','&quot;')}"><td>${e.date}</td><td><b>${e.entity}</b></td><td>${e.headline}</td><td class="qty">${e.quantity} ${e.unit}</td><td>${e.compute_relevance}</td><td><a target="_blank" href="${e.source_url}">${e.source_name} ↗</a></td></tr>`).join('');document.querySelectorAll('#eventBody tr').forEach(tr=>tr.addEventListener('click',ev=>{if(ev.target.closest('a'))return;const e=EVENTS.find(x=>x.date===tr.dataset.date&&x.entity===tr.dataset.entity);if(e)showEventInspector(e,tr);}));}
+function initEvents(){const types=[...new Set(EVENTS.map(e=>e.event_type))].sort();const s=document.getElementById('eventType');types.forEach(t=>{let o=document.createElement('option');o.value=t;o.textContent=t.replaceAll('_',' ');s.appendChild(o)});document.getElementById('eventSearch').oninput=renderEvents;s.onchange=renderEvents;renderEvents();}
+function calcRegime(){const move=val('aiMove'),ybp=val('yieldBp'),oil=val('oilMove'),v=document.getElementById('vwap').checked,b=document.getElementById('breadth').checked,news=document.getElementById('structuralNews').checked,day=document.getElementById('day').value;let state='No signal',cls='nosig',score=.25,why=[];if(news){state='Fundamental repricing';cls='fund';score=1;why.push('New information changes structural earnings/capacity assumptions.')}else if(move<=-1&&(ybp>=8||oil>=2)&&!(v&&b)){state='Macro continuation';cls='macro';score=Math.min(1,Math.abs(move)/4+.35);why.push('AI weakness is confirmed by rates/oil and tape repair is absent.')}else if(move<=-1&&ybp<=0&&oil<=.5&&v&&b){state='Negative exhaustion';cls='neg';score=Math.min(1,Math.abs(move)/4+.5);why.push('AI is weak but macro pressure is stabilizing and tape/breadth are repairing.');if(day==='Monday')why.push('Monday hypothesis is active as a conditioning feature only.')}else if(move>=1.5&&!b&&!v){state='Positive exhaustion';cls='fund';score=Math.min(1,move/5+.35);why.push('Strong AI move lacks participation/price confirmation.');if(day==='Friday')why.push('Friday fade hypothesis is active as a conditioning feature only.')}else why.push('Inputs do not meet a high-confidence state.');let n=document.getElementById('regimeName');n.textContent=state;n.className='regime section '+cls;document.getElementById('regimeBar').style.width=(score*100)+'%';document.getElementById('regimeWhy').textContent=why.join(' ');}
+
+
+let foundryState={wafers:0,packages:0,goodDies:0,load:0};
+function moneyFlex(x){if(!isFinite(x))return '—';if(Math.abs(x)>=1000)return '$'+(x/1000).toFixed(2)+'B';return '$'+x.toFixed(x<10?2:1)+'M';}
+function setCapBar(id,labelId,pct){const b=document.getElementById(id);if(!b)return;const raw=Math.max(0,pct);b.style.width=Math.min(100,raw)+'%';b.classList.toggle('warn',raw>=75&&raw<100);b.classList.toggle('hot',raw>=100);document.getElementById(labelId).textContent=raw.toFixed(1)+'%';}
+function calcFoundry(){if(!document.getElementById('fDieArea')||!structural.installed)return;const area=Math.max(1,val('fDieArea')),eq=Math.max(.01,val('fDieEq')),y=Math.max(.01,Math.min(.99,val('fYield')/100));const waferArea=Math.PI*150*150;const gross=Math.max(1,waferArea/area-Math.PI*300/Math.sqrt(2*area));const good=gross*y;const dieNeed=structural.installed*eq;const wafers=dieNeed/good;const pkgs=structural.installed;const cap=Math.max(1,val('fPkgCap')*1000);const load=pkgs/cap*100;const frev=wafers*val('fWaferAsp')*(val('fFoundryShare')/100)/1e6;const prev=pkgs*val('fPkgAsp')*(val('fPkgShare')/100)/1e6;foundryState={wafers,packages:pkgs,goodDies:good,load};document.getElementById('fGoodDies').textContent=fmt(good,1);document.getElementById('fWafers').textContent=fmt(wafers,1);document.getElementById('fPkgUnits').textContent=fmt(pkgs,0);document.getElementById('fFoundryRev').textContent=moneyFlex(frev);document.getElementById('fPkgRev').textContent=moneyFlex(prev);document.getElementById('fBottleneck').textContent=load>=100?'PACKAGE SHORT':load>=75?'PACKAGE TIGHT':'CAPACITY OK';document.getElementById('fDiagAccel').textContent=fmt(structural.installed,0)+' installed';document.getElementById('fDiagArea').textContent=area.toFixed(0)+' mm² × '+eq.toFixed(2);document.getElementById('fDiagYield').textContent=(y*100).toFixed(0)+'%';document.getElementById('fDiagWafers').textContent=fmt(wafers,1)+' wafers';document.getElementById('fDiagPkg').textContent=fmt(pkgs,0)+' units';setCapBar('fLoadBar','fLoadLabel',load);calcWfe();}
+function setFoundryPreset(n){const z={base:[600,1,75,18000,5500,100,100,80],chiplet:[350,2.2,78,18500,7200,100,100,80],yield:[600,1,58,18000,5500,100,100,80],squeeze:[600,1,75,18000,7000,3,100,90]}[n];['fDieArea','fDieEq','fYield','fWaferAsp','fPkgAsp','fPkgCap','fFoundryShare','fPkgShare'].forEach((id,i)=>document.getElementById(id).value=z[i]);calcFoundry();}
+function calcNetwork(){if(!document.getElementById('nModules')||!structural.installed)return;const mods=val('nModules'),c=Math.max(0,Math.min(1,val('nCopper')/100)),speed=val('nSpeed'),optical=structural.installed*mods*(1-c),ports=structural.installed*val('nSwitchPorts'),bw=optical*speed/1000;const orev=optical*val('nOpticsAsp')*(val('nOpticsShare')/100)/1e6,srev=ports*val('nSwitchAsp')*(val('nSwitchShare')/100)/1e6,intensity=mods*(1-c)*val('nOpticsAsp');document.getElementById('nTransceivers').textContent=fmt(optical,0);document.getElementById('nBandwidth').textContent=fmt(bw,1);document.getElementById('nPorts').textContent=fmt(ports,0);document.getElementById('nOpticsRev').textContent=moneyFlex(orev);document.getElementById('nSwitchRev').textContent=moneyFlex(srev);document.getElementById('nIntensity').textContent='$'+fmt(intensity,0);document.getElementById('nOpticalBar').style.width=(100*(1-c))+'%';document.getElementById('nCopperBar').style.width=(100*c)+'%';document.getElementById('nOpticalPct').textContent=Math.round(100*(1-c))+'%';document.getElementById('nCopperPct').textContent=Math.round(100*c)+'%';document.getElementById('nSpeedBar').style.width=Math.min(100,speed/16)+'%';document.getElementById('nSpeedLabel').textContent=speed>=1000?(speed/1000).toFixed(1)+'T':speed+'G';}
+function setNetworkPreset(n){const z={base:[2.2,20,800,900,1.25,700,25,35],copper:[1.3,55,800,850,1.05,650,25,35],1600:[2.5,12,1600,1450,1.35,850,25,35],dense:[3.2,10,800,1000,1.6,800,25,35]}[n];['nModules','nCopper','nSpeed','nOpticsAsp','nSwitchPorts','nSwitchAsp','nOpticsShare','nSwitchShare'].forEach((id,i)=>document.getElementById(id).value=z[i]);calcNetwork();}
+function calcPower(){if(!document.getElementById('pKw')||!structural.installed)return;const it=structural.installed*val('pKw')/1000,pue=Math.max(1,val('pPue')),facility=it*pue,racks=structural.installed/Math.max(1,val('pPerRack')),liq=Math.max(0,Math.min(1,val('pLiquid')/100)),cdus=racks*liq/Math.max(1,val('pRacksCdu')),spend=facility*(val('pElecM')+val('pCoolM')),capt=spend*(val('pShare')/100),avail=Math.max(.01,val('pAvailableMW')),load=facility/avail*100;document.getElementById('pITMW').textContent=fmt(it,2);document.getElementById('pFacilityMW').textContent=fmt(facility,2);document.getElementById('pRacks').textContent=fmt(racks,1);document.getElementById('pCDU').textContent=fmt(cdus,1);document.getElementById('pInfraSpend').textContent=moneyFlex(spend);document.getElementById('pCapturedRev').textContent=moneyFlex(capt);setCapBar('pLoadBar','pLoadLabel',load);}
+function setPowerPreset(n){const z={base:[.75,1.2,72,80,4,2.5,1.2,20,100],dense:[1.15,1.15,72,100,2,3.2,2.0,20,100],grid:[.9,1.25,72,90,3,3.0,1.6,20,2],efficient:[.55,1.10,72,70,5,2.1,.9,20,100]}[n];['pKw','pPue','pPerRack','pLiquid','pRacksCdu','pElecM','pCoolM','pShare','pAvailableMW'].forEach((id,i)=>document.getElementById(id).value=z[i]);calcPower();}
+function calcWfe(){if(!document.getElementById('wHbmGBWafer')||!structural.installed)return;const logic=Math.max(0,foundryState.wafers||0),hbmGB=structural.hbmPB*1e6,hbmRaw=hbmGB/Math.max(1,val('wHbmGBWafer')),hbmEq=hbmRaw*Math.max(1,val('wHbmIntensity')),total=logic+hbmEq,wspm=total/12,spare=Math.max(0,val('wSpare')),gap=Math.max(0,wspm-spare),wfe=gap/1000*val('wCapexPerK');const secs=structural.installed*val('wTestSec'),parallel=Math.max(1,val('wParallel')),util=Math.max(.01,val('wUtil')/100),tools=secs/(365*24*3600*util*parallel),tspend=tools*val('wAteAsp');document.getElementById('wLogicRead').textContent=fmt(logic,1)+' wafers/yr';document.getElementById('wHbmRead').textContent=fmt(hbmEq,1)+' eq wafers/yr';document.getElementById('wTrigger').textContent=gap>0?'YES':'NO';document.getElementById('wTrigger').className=gap>0?'bad':'check';document.getElementById('wTotalWafers').textContent=fmt(total,1);document.getElementById('wWspm').textContent=fmt(wspm,2);document.getElementById('wGap').textContent=fmt(gap,2);document.getElementById('wWfeSpend').textContent=moneyFlex(wfe);document.getElementById('wTools').textContent=fmt(tools,3);document.getElementById('wTestSpend').textContent=moneyFlex(tspend);}
+function setWfePreset(n){const z={base:[12000,2.5,50,250,600,8,70,2.5],tight:[12000,2.5,0,300,600,8,70,2.5],hbm:[8000,3.2,0,320,600,8,70,2.5],test:[12000,2.5,20,250,1800,4,55,3.5]}[n];['wHbmGBWafer','wHbmIntensity','wSpare','wCapexPerK','wTestSec','wParallel','wUtil','wAteAsp'].forEach((id,i)=>document.getElementById(id).value=z[i]);calcWfe();}
+function initVerticals(){document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>gotoTab(b.dataset.goto)));document.querySelectorAll('[data-fpreset]').forEach(b=>b.addEventListener('click',()=>setFoundryPreset(b.dataset.fpreset)));document.querySelectorAll('[data-npreset]').forEach(b=>b.addEventListener('click',()=>setNetworkPreset(b.dataset.npreset)));document.querySelectorAll('[data-ppreset]').forEach(b=>b.addEventListener('click',()=>setPowerPreset(b.dataset.ppreset)));document.querySelectorAll('[data-wpreset]').forEach(b=>b.addEventListener('click',()=>setWfePreset(b.dataset.wpreset)));['fDieArea','fDieEq','fYield','fWaferAsp','fPkgAsp','fPkgCap','fFoundryShare','fPkgShare'].forEach(id=>document.getElementById(id)?.addEventListener('input',calcFoundry));['nModules','nCopper','nSpeed','nOpticsAsp','nSwitchPorts','nSwitchAsp','nOpticsShare','nSwitchShare'].forEach(id=>document.getElementById(id)?.addEventListener('input',calcNetwork));['pKw','pPue','pPerRack','pLiquid','pRacksCdu','pElecM','pCoolM','pShare','pAvailableMW'].forEach(id=>document.getElementById(id)?.addEventListener('input',calcPower));['wHbmGBWafer','wHbmIntensity','wSpare','wCapexPerK','wTestSec','wParallel','wUtil','wAteAsp'].forEach(id=>document.getElementById(id)?.addEventListener('input',calcWfe));calcFoundry();calcNetwork();calcPower();calcWfe();}
+
+const CHAIN_INFO={
+ software:['AI SOFTWARE','Start upstream: contracts, active users, token volumes, model mix and agentic amplification. The point is to estimate economic workload before looking at the supplier stock.'],
+ compute:['COMPUTE','Translate dollars or workload into accelerator-hours, then adjust for utilization, goodput, spare capacity and peak/SLA reserve. Two independent backsolvers should agree within a defensible range.'],
+ bom:['BILL OF MATERIALS','Map installed accelerators into HBM, host DRAM, enterprise NAND, packaging, networking and power using time-versioned platform assumptions.'],
+ supply:['SUPPLY / BOTTLENECKS','Convert physical demand into effective scarcity using wafer capacity, yields, inventory, qualification constraints and shared HBM/DDR capacity.'],
+ earnings:['SUPPLIER EARNINGS','Apply supplier share, fill rate, contract ASP timing and incremental margin. This is where a strong demand story can still become a weak EPS result.'],
+ expectations:['MARKET EXPECTATIONS','Compare the full BOM-X EPS distribution with point-in-time consensus and reverse-implied physical assumptions. Strong fundamentals are not alpha if already embedded in price.'],
+ signal:['EXPECTATIONS GAP','The candidate signal is the residual between economic implication and the priced view, subject to uncertainty. If the p5–p95 band cannot separate from consensus, the model should say “no trade.”']
+};
+function initChain(){document.querySelectorAll('.chain-node').forEach(n=>{const go=()=>{document.querySelectorAll('.chain-node').forEach(x=>x.classList.remove('active'));n.classList.add('active');const z=CHAIN_INFO[n.dataset.chain];document.getElementById('chainTitle').textContent=z[0];document.getElementById('chainText').textContent=z[1];};n.addEventListener('click',go);n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}})});}
+function setPreset(name){const presets={base:{commit:100,computeShare:50,hourCost:4,util:60,spare:0,reserve:1,storageTB:2.5,usersM:10,queries:8,tokens:2500,agentAmp:2,gpuSec:.8,workUtil:60,hbmAsp:12,muShare:20},scale:{commit:1000,computeShare:55,hourCost:4,util:65,spare:5,reserve:1.05,storageTB:2.7,usersM:55,queries:9,tokens:3000,agentAmp:2.4,gpuSec:.75,workUtil:65,hbmAsp:12,muShare:20},tight:{commit:750,computeShare:58,hourCost:4.3,util:68,spare:2,reserve:1.1,storageTB:3.1,usersM:40,queries:10,tokens:4000,agentAmp:3,gpuSec:.9,workUtil:66,hbmAsp:15,muShare:24},spare:{commit:500,computeShare:48,hourCost:3.8,util:62,spare:35,reserve:1.02,storageTB:2.2,usersM:20,queries:7,tokens:2200,agentAmp:1.8,gpuSec:.7,workUtil:64,hbmAsp:10,muShare:18},agent:{commit:400,computeShare:52,hourCost:4.1,util:63,spare:8,reserve:1.08,storageTB:3.4,usersM:18,queries:12,tokens:4200,agentAmp:6,gpuSec:1.05,workUtil:62,hbmAsp:13,muShare:22}};const z=presets[name]||presets.base;Object.entries(z).forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.value=v});document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===name));calc();}
+function initPresets(){document.querySelectorAll('.preset-btn').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.preset)));}
+function updateComparison(){const d=structural.installed||0,w=workload.accels||0;if(!document.getElementById('dollarBar'))return;const mx=Math.max(d,w,1),ratio=Math.max(d,w)/Math.max(Math.min(d,w),1);document.getElementById('dollarBar').style.width=(100*d/mx)+'%';document.getElementById('workBar').style.width=(100*w/mx)+'%';document.getElementById('dollarBarVal').textContent=fmt(d,0);document.getElementById('workBarVal').textContent=fmt(w,0);const pill=document.getElementById('diagPill');if(ratio<=1.5){pill.textContent='CONSISTENT · '+ratio.toFixed(2)+'×';pill.className='diag-pill ok';document.getElementById('diagText').textContent='The two views are reasonably aligned under the current assumptions.';}else{pill.textContent='DISAGREE · '+ratio.toFixed(2)+'×';pill.className='diag-pill warn';document.getElementById('diagText').textContent='Material disagreement: inspect price/hour, workload intensity, utilization and spare capacity before trusting the hardware estimate.';}}
+function updateDemandGraphics(){if(!document.getElementById('stCommit'))return;const vals=[Math.max(val('commit'),1),Math.max((structural.hours||0)/1e6,.01),Math.max((structural.installed||0)/100,.01),Math.max((structural.hbmPB||0)*100,.01),Math.max((structural.nandPB||0)*10,.01),Math.max((parseFloat((document.getElementById('muEPS')?.textContent||'0').replace('$',''))||0)*10000,.01)];const logs=vals.map(v=>Math.log10(v+1));const mx=Math.max(...logs,1);['stCommit','stHours','stAccels','stHbm','stNand','stEps'].forEach((id,i)=>document.getElementById(id).style.height=(12+78*logs[i]/mx)+'%');}
+const SENS_TEXT={'HBM ASP':'Direct revenue leverage, but timing depends on contract resets and pass-through. Validate against HBM LTAs and reported pricing.','Supplier share':'Determines which public company captures the physical demand. Needs point-in-time qualification and allocation evidence.','Spare capacity':'The key subtraction between software demand and new hardware demand. Existing idle capacity can absorb a contract without a new chip order.','Incremental margin':'Maps revenue into earnings. It should be supplier- and cycle-specific rather than fixed.','Compute share':'Separates software/service value from the infrastructure cost embedded in a contract.','$/accel-hour':'A major bridge from dollars to compute. Goodput, architecture, depreciation and cloud economics all matter.','Utilization':'Converts continuous equivalents into installed hardware. Peak provisioning and latency SLAs constrain achievable utilization.','Fill rate':'Captures whether supplier demand can actually ship through capacity and qualification constraints.','HBM GB/accel':'Content per accelerator changes quickly by platform generation and directly scales HBM demand.','Peak reserve':'Extra installed capacity required for burstiness, redundancy and service-level constraints.'};
+function bindSensitivityRows(){document.querySelectorAll('.sens-row').forEach(r=>{const show=()=>{document.querySelectorAll('.sens-row').forEach(x=>x.classList.remove('selected'));r.classList.add('selected');document.getElementById('sensExplain').innerHTML=`<b>${r.dataset.sens} · ${r.dataset.pct}% normalized first-order share</b><span>${SENS_TEXT[r.dataset.sens]||'Sensitivity driver.'}</span>`};r.addEventListener('click',show);r.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show();}})});}
+function showEventInspector(e,tr){selectedEvent=e;document.querySelectorAll('#eventBody tr').forEach(x=>x.classList.remove('event-row-selected'));tr?.classList.add('event-row-selected');const box=document.getElementById('eventInspector');box.classList.add('show');document.getElementById('eventInspectorTitle').textContent=e.entity+' · '+e.date;document.getElementById('eventInspectorHeadline').textContent=e.headline+' '+e.compute_relevance;document.getElementById('eventInspectorQty').textContent=e.quantity+' '+e.unit;document.getElementById('eventInspectorConf').textContent=Math.round(e.confidence*100)+'%';}
+function loadSelectedEvent(){if(!selectedEvent)return;gotoTab('backsolver');if(selectedEvent.unit.includes('USD_bn')){document.getElementById('commit').value=selectedEvent.quantity*1000;}else if(selectedEvent.unit==='GW'||selectedEvent.unit==='GW_plus'){const roughM=selectedEvent.quantity*18000;document.getElementById('commit').value=roughM;document.getElementById('computeShare').value=65;}calc();}
+function calcMemoryPrice(){if(!document.getElementById('memDemand'))return;const D=+document.getElementById('memDemand').value,S=+document.getElementById('memSupply').value,b=+document.getElementById('memBeta').value/100,k=+document.getElementById('memKappa').value/100,pass=+document.getElementById('memPass').value/100,w=+document.getElementById('hbmWafer').value/100;const tight=(D-S)/Math.max(S,1);const dl=b*Math.tanh(tight/Math.max(k,.01))*pass;const pct=(Math.exp(dl)-1)*100;document.getElementById('memDemandVal').textContent=D.toFixed(0);document.getElementById('memSupplyVal').textContent=S.toFixed(0);document.getElementById('memBetaVal').textContent=b.toFixed(2);document.getElementById('memKappaVal').textContent=k.toFixed(2);document.getElementById('memPassVal').textContent=Math.round(pass*100)+'%';document.getElementById('hbmWaferVal').textContent=w.toFixed(2)+'×';document.getElementById('priceMove').textContent=(pct>=0?'+':'')+pct.toFixed(1)+'%';document.getElementById('priceMove').style.color=pct>=0?'#aef4d2':'#ffafbd';document.getElementById('tightnessOut').textContent=(tight>=0?'+':'')+tight.toFixed(3);document.getElementById('waferLoadOut').textContent=(100+(Math.max(D-100,0))*w).toFixed(0)+' idx';const pos=Math.max(8,Math.min(92,50+pct*1.25));document.getElementById('priceNeedle').style.left=pos+'%';}
+function setMemStress(name){const z={glut:[90,125,30,45,80,180],balanced:[100,100,35,40,65,220],tight:[130,92,48,32,80,300],lta:[128,94,48,32,25,300]}[name];['memDemand','memSupply','memBeta','memKappa','memPass','hbmWafer'].forEach((id,i)=>document.getElementById(id).value=z[i]);calcMemoryPrice();}
+function initInteractive(){initChain();initPresets();document.getElementById('rerunSensitivity')?.addEventListener('click',runSensitivity);document.getElementById('openBacksolver')?.addEventListener('click',()=>gotoTab('backsolver'));document.getElementById('openEvents')?.addEventListener('click',()=>gotoTab('events'));document.getElementById('stressHome')?.addEventListener('click',()=>{gotoTab('memory');setMemStress('tight')});document.getElementById('closeEventInspector')?.addEventListener('click',()=>document.getElementById('eventInspector').classList.remove('show'));document.getElementById('loadEventScenario')?.addEventListener('click',loadSelectedEvent);['memDemand','memSupply','memBeta','memKappa','memPass','hbmWafer'].forEach(id=>document.getElementById(id)?.addEventListener('input',calcMemoryPrice));document.querySelectorAll('[data-memstress]').forEach(b=>b.addEventListener('click',()=>setMemStress(b.dataset.memstress)));initVerticals();calcMemoryPrice();}
+
+['commit','computeShare','hourCost','util','spare','reserve','storageTB','usersM','queries','tokens','agentAmp','gpuSec','workUtil','muShare','hbmAsp','muMargin','muShares','sndkShare','nandAsp','sndkMargin','sndkShares','consEPS','baseEPS'].forEach(id=>{window.addEventListener('DOMContentLoaded',()=>{let e=document.getElementById(id);if(e)e.addEventListener('input',calc)})});
+window.addEventListener('DOMContentLoaded',()=>{initNav();initPlatforms();initEvents();calc();calcRegime();runSensitivity();initInteractive();});
+</script>
+</body></html>
