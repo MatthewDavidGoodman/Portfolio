@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="320" viewBox="0 0 1100 320">
+<rect width="1100" height="320" rx="24" fill="#0b1119"/>
+<text x="55" y="52" fill="#eaf4f8" font-family="Arial,sans-serif" font-size="24" font-weight="700">Aerospace 6-DoF / Orbital Simulation</text>
+<text x="55" y="80" fill="#8ca0b3" font-family="Arial,sans-serif" font-size="14">physics → estimation / guidance → propagation → verification</text>
+<g font-family="Arial,sans-serif">
+<rect x="55" y="120" width="180" height="105" rx="16" fill="#111d28" stroke="#55dff8" stroke-opacity=".55"/><text x="75" y="154" fill="#dff9ff" font-size="17" font-weight="700">Dynamics core</text><text x="75" y="181" fill="#8fa5b5" font-size="13">C++17 · Eigen · RK4</text><text x="75" y="202" fill="#8fa5b5" font-size="13">rigid body · quadrotor</text>
+<rect x="290" y="120" width="180" height="105" rx="16" fill="#111d28" stroke="#8f86ff" stroke-opacity=".55"/><text x="310" y="154" fill="#f0edff" font-size="17" font-weight="700">Astrodynamics</text><text x="310" y="181" fill="#8fa5b5" font-size="13">J2 / harmonics · CR3BP</text><text x="310" y="202" fill="#8fa5b5" font-size="13">SGP4 · conjunction</text>
+<rect x="525" y="120" width="180" height="105" rx="16" fill="#111d28" stroke="#72e5b3" stroke-opacity=".55"/><text x="545" y="154" fill="#e4fff3" font-size="17" font-weight="700">GNC</text><text x="545" y="181" fill="#8fa5b5" font-size="13">quaternion attitude PD</text><text x="545" y="202" fill="#8fa5b5" font-size="13">guidance · control</text>
+<rect x="760" y="120" width="180" height="105" rx="16" fill="#111d28" stroke="#f4c56b" stroke-opacity=".55"/><text x="780" y="154" fill="#fff3d4" font-size="17" font-weight="700">Verification</text><text x="780" y="181" fill="#8fa5b5" font-size="13">unit / reference checks</text><text x="780" y="202" fill="#8fa5b5" font-size="13">SITL acceptance path</text>
+<path d="M235 172h45" stroke="#567383" stroke-width="2"/><path d="m276 166 10 6-10 6" fill="none" stroke="#567383" stroke-width="2"/>
+<path d="M470 172h45" stroke="#567383" stroke-width="2"/><path d="m511 166 10 6-10 6" fill="none" stroke="#567383" stroke-width="2"/>
+<path d="M705 172h45" stroke="#567383" stroke-width="2"/><path d="m746 166 10 6-10 6" fill="none" stroke="#567383" stroke-width="2"/>
+<text x="55" y="278" fill="#6f8394" font-size="12">Research / verification stack — model boundaries are documented explicitly in STATUS.md.</text>
+</g></svg>
