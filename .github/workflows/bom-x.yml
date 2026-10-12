@@ -1,0 +1,39 @@
+name: BOM-X
+on:
+  push:
+    paths:
+      - 'projects/bom-x-research/**'
+      - '.github/workflows/bom-x.yml'
+  pull_request:
+    paths:
+      - 'projects/bom-x-research/**'
+  workflow_dispatch:
+jobs:
+  static-smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects/bom-x-research
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate self-contained research terminal
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('index.html').read_text(encoding='utf-8')
+          required = [
+              'BOM-X — AI / Semiconductor Research Engine',
+              'Demand Backsolver',
+              'Memory / Earnings',
+              'Foundry / Packaging',
+              'Networking / Optics',
+              'Power / Cooling',
+              'WFE / Test',
+              'Backtest Lab',
+              'Tactical Regime',
+          ]
+          missing = [item for item in required if item not in text]
+          assert not missing, f'Missing modules: {missing}'
+          assert '<script' in text and '<style' in text
+          print(f'BOM-X smoke check passed ({len(text):,} chars)')
+          PY
