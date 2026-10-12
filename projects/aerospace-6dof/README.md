@@ -1,32 +1,43 @@
 # Aerospace Lab — 6-DoF / Orbital Simulation
 
-A research-oriented aerospace simulation stack built around a C++17 / Eigen dynamics core, with Python astrodynamics and verification modules.
+[![Aerospace 6-DoF](https://github.com/MatthewDavidGoodman/Portfolio/actions/workflows/aerospace-6dof.yml/badge.svg)](https://github.com/MatthewDavidGoodman/Portfolio/actions/workflows/aerospace-6dof.yml)
 
-This public portfolio snapshot focuses on source and validation logic. Generated telemetry, replay artifacts, large reference outputs, and local build products are intentionally excluded.
+A research-oriented aerospace simulation stack built around a **C++17 / Eigen dynamics core** with Python astrodynamics and verification modules.
+
+![Architecture](./assets/architecture.svg)
+
+## What this demonstrates
+
+- building and testing a numerical 6-DoF dynamics core rather than only scripting a simulator;
+- quaternion attitude dynamics, RK4 integration and closed-loop attitude control;
+- separating physical models, GNC, orbital analysis and validation boundaries;
+- working across rigid-body flight simulation, astrodynamics, SGP4/TLE handling and conjunction research;
+- documenting what is validated, experimental and explicitly *not* claimed.
 
 ## Core areas
 
-- rigid-body 6-DoF dynamics with RK4 integration
-- quaternion attitude dynamics and PD control
-- quadrotor dynamics and motor lag
-- J2 / harmonic gravity research modules
-- CR3BP and two-body dynamics
-- SGP4/TLE catalog handling
-- covariance and conjunction-analysis tooling
-- ArduPilot SITL integration in the full working project
+- rigid-body 6-DoF dynamics with RK4 integration;
+- quaternion attitude dynamics and PD control;
+- quadrotor dynamics and motor lag;
+- J2 / harmonic-gravity research modules;
+- CR3BP and two-body dynamics;
+- SGP4/TLE catalog handling;
+- covariance and conjunction-analysis tooling;
+- ArduPilot SITL acceptance path in the full working project.
 
-## Build the C++ core
+## Reproduce the public C++ check
 
 ```bash
+sudo apt-get install libeigen3-dev
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j
 ctest --test-dir build --output-on-failure
 ```
 
-Requires Eigen 3.4.
+CI runs the same portable C++ build and core test on Ubuntu.
 
 ## Engineering boundaries
 
-This is a research and verification project, not a flight-qualified digital twin or operational conjunction system. The model-status document distinguishes implemented/tested pieces from experimental interfaces and explicitly unimplemented work.
+This is **research and verification software**, not a flight-qualified digital twin or operational conjunction service. [STATUS.md](STATUS.md) distinguishes implemented/tested pieces from simplified or experimental models and explicitly unimplemented work.
 
-See [STATUS.md](STATUS.md).
+Generated telemetry, large replay outputs, local build artifacts and interview-specific material are intentionally excluded from this public snapshot.
