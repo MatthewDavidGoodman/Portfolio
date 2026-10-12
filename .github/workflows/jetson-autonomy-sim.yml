@@ -1,0 +1,22 @@
+name: Jetson Autonomy Simulator
+on:
+  push:
+    paths:
+      - 'projects/jetson-autonomy-sim/**'
+      - '.github/workflows/jetson-autonomy-sim.yml'
+  pull_request:
+    paths:
+      - 'projects/jetson-autonomy-sim/**'
+  workflow_dispatch:
+jobs:
+  portable-cpu-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects/jetson-autonomy-sim
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build -j2
+      - run: ./build/autonomy_sim 1
+      - run: ./build/pipeline_bench
