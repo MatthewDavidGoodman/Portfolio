@@ -1,42 +1,50 @@
 # MicroFactory-LR
 
-A simulation-first personal robotics project built around a small autonomous manufacturing cell:
+[![LeRobot MicroFactory](https://github.com/MatthewDavidGoodman/Portfolio/actions/workflows/lerobot-microfactory.yml/badge.svg)](https://github.com/MatthewDavidGoodman/Portfolio/actions/workflows/lerobot-microfactory.yml)
 
-**observe -> manipulate -> verify -> recover**
+A simulation-first autonomous manufacturing cell built around one loop:
 
-The eventual physical task is tabletop component pick/place or insertion using LeRobot-compatible hardware. v0.1 deliberately starts with a tiny deterministic simulator so safety, recovery, evaluation, and policy boundaries can be tested before hardware or imitation learning is introduced.
+**observe → manipulate → verify → recover**
 
-## What already works
+![Architecture](./assets/architecture.svg)
 
-- 2-D pick/place simulator
-- closed-loop policy controller
-- deterministic action safety projection
-- grasp and placement verification hooks
-- automatic grasp-recovery path
-- randomized evaluation scenarios
-- success/intervention/safety metrics
-- optional LeRobot compatibility boundary
-- ACT and SmolVLA training command templates
-- unit tests
+## What this demonstrates
 
-## Quick start
+- robot-learning code wrapped in deterministic safety and verification logic;
+- explicit policy interfaces so a heuristic controller can later be replaced by ACT / VLA policies;
+- recovery as a first-class control path rather than an afterthought;
+- randomized evaluation with success, intervention and safety-projection metrics;
+- testable robotics software before hardware is introduced.
+
+## What works now
+
+- 2-D pick/place simulator;
+- closed-loop policy controller;
+- deterministic action safety projection;
+- grasp and placement verification;
+- automatic grasp-recovery path;
+- randomized scenarios and evaluation metrics;
+- optional LeRobot compatibility boundary;
+- unit tests.
+
+## Reproduce
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -e '.[dev]'
 
+pytest
 microfactory demo
 microfactory eval --episodes 100
-pytest
 ```
 
-Expected baseline: near-100% success in the deterministic v0 simulator. The heuristic policy uses privileged state; it exists to prove the surrounding robot-cell logic is sound before replacing it with learned perception/control.
+The heuristic baseline uses privileged state on purpose. It proves the surrounding cell logic before learned perception/control is introduced. CI tests the simulator, safety filter and controller, then runs a randomized evaluation threshold.
 
 ## Roadmap
 
-- **v0.1:** deterministic simulation, policy protocol, safety, verification, recovery, evaluation
-- **v0.2:** synthetic RGB + OpenCV visual state
-- **v0.3:** LeRobotDataset + ACT adapter
-- **v0.4:** physical arm/cameras/calibration/watchdog
-- **v0.5:** SmolVLA robustness study
+- **v0.1:** deterministic simulation, policy protocol, safety, verification, recovery, evaluation;
+- **v0.2:** synthetic RGB + OpenCV visual state;
+- **v0.3:** LeRobotDataset + ACT adapter;
+- **v0.4:** physical arm, cameras, calibration and watchdog;
+- **v0.5:** SmolVLA robustness study.
