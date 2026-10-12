@@ -1,11 +1,14 @@
-# Recent Engineering Projects
+# Recent Engineering & Research Projects
 
-This directory contains curated, public-facing source snapshots of recent projects.
+Curated public-facing source snapshots of current work.
 
-| Project | Focus | Current evidence |
+| Project | Focus | Reproducible public evidence |
 |---|---|---|
-| [Aerospace 6-DoF](./aerospace-6dof/) | C++, rigid-body dynamics, astrodynamics, GNC, orbital analysis | physics/reference tests, orbital pipeline, SITL integration |
-| [LeRobot MicroFactory](./lerobot-microfactory/) | robotics, safety, verification, recovery, robot learning | unit tests and randomized simulation evaluation |
-| [Jetson Autonomy Simulator](./jetson-autonomy-sim/) | embedded autonomy, V4L2, CUDA/TensorRT boundaries, planning/control | desktop C++ build and platform scaffolding |
+| [Aerospace 6-DoF](./aerospace-6dof/) | C++, rigid-body dynamics, astrodynamics, GNC | CMake build + CTest; explicit model-status boundaries |
+| [Jetson Autonomy Simulator](./jetson-autonomy-sim/) | embedded autonomy, V4L2, CUDA/TensorRT interfaces | portable C++ build + executable smoke run |
+| [LeRobot MicroFactory](./lerobot-microfactory/) | robotics, safety, verification, recovery | unit tests + randomized simulation evaluation |
+| [BOM-X](./bom-x-research/) | semiconductor / physical-AI research engine | self-contained interactive terminal + static smoke check |
 
-Generated run logs, large telemetry outputs, caches, and interview-specific material are intentionally excluded.
+Generated run logs, large telemetry outputs, caches, local builds and interview-specific material are intentionally excluded.
+
+Each project README distinguishes current evidence from target-hardware, future-work or research-only claims.
