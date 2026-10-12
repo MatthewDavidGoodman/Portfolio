@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="320" viewBox="0 0 1100 320">
+<rect width="1100" height="320" rx="24" fill="#0b1119"/>
+<text x="55" y="50" fill="#eaf4f8" font-family="Arial,sans-serif" font-size="24" font-weight="700">MicroFactory-LR control loop</text>
+<text x="55" y="78" fill="#8ca0b3" font-family="Arial,sans-serif" font-size="14">learned policy boundary with deterministic safety, verification and recovery</text>
+<g font-family="Arial,sans-serif">
+<rect x="65" y="125" width="175" height="90" rx="16" fill="#111d28" stroke="#55dff8" stroke-opacity=".55"/><text x="86" y="158" fill="#dff9ff" font-size="16" font-weight="700">Observation</text><text x="86" y="184" fill="#8fa5b5" font-size="13">state / camera adapter</text>
+<rect x="290" y="125" width="175" height="90" rx="16" fill="#111d28" stroke="#8f86ff" stroke-opacity=".55"/><text x="311" y="158" fill="#f0edff" font-size="16" font-weight="700">Policy</text><text x="311" y="184" fill="#8fa5b5" font-size="13">heuristic → ACT / VLA</text>
+<rect x="515" y="125" width="175" height="90" rx="16" fill="#111d28" stroke="#72e5b3" stroke-opacity=".55"/><text x="536" y="158" fill="#e4fff3" font-size="16" font-weight="700">Safety filter</text><text x="536" y="184" fill="#8fa5b5" font-size="13">workspace / rate limits</text>
+<rect x="740" y="125" width="175" height="90" rx="16" fill="#111d28" stroke="#f4c56b" stroke-opacity=".55"/><text x="761" y="158" fill="#fff3d4" font-size="16" font-weight="700">Robot / sim</text><text x="761" y="184" fill="#8fa5b5" font-size="13">execute + observe</text>
+<path d="M240 170h40M465 170h40M690 170h40" stroke="#567383" stroke-width="2"/>
+<path d="M825 225c0 55-530 55-530 5" fill="none" stroke="#ff879e" stroke-opacity=".65" stroke-width="2"/><text x="470" y="285" fill="#d992a0" font-size="12">verification failure → deterministic recovery</text>
+</g></svg>
