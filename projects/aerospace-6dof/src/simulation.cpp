@@ -32,3 +32,4 @@ SimulationResult simulate_attitude_hold(
     }
     return result;
 }
+}
